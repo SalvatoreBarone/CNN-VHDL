@@ -9,14 +9,14 @@ architecture behavioral of tb_adder is
 
 	component adder is
 		generic (
-				nbits		: natural := 4
+				data_size		: natural := 4
 		);
 		
 		port (
-				add_1 		: in   std_logic_vector (nbits-1 downto 0);
-				add_2 		: in   std_logic_vector (nbits-1 downto 0);
+				add_1 		: in   std_logic_vector (data_size-1 downto 0);
+				add_2 		: in   std_logic_vector (data_size-1 downto 0);
 				sub_add_n	: in   std_logic;
-				sum 		  : out  std_logic_vector (nbits-1 downto 0);
+				sum 		  : out  std_logic_vector (data_size-1 downto 0);
 				carry_out	: out  std_logic;
 				overflow 	: out  std_logic
 		);
@@ -31,7 +31,7 @@ architecture behavioral of tb_adder is
 begin
 
 	uut : adder
-		generic map( nbits => 8 )
+		generic map( data_size => 8 )
 		port map (
 			add_1 => add_1,
 			add_2 => add_2,

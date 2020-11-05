@@ -8,10 +8,10 @@ end tb_multiplier;
 architecture behavior of tb_multiplier is
 
 	component multiplier
-    generic (nbits : integer := 8);
-    port (	x		: in std_logic_vector(nbits-1 downto 0);
-        y		: in std_logic_vector(nbits-1 downto 0);
-        prod	: out std_logic_vector ((2*nbits)-1 downto 0)
+    generic (data_size : integer := 8);
+    port (	x		: in std_logic_vector(data_size-1 downto 0);
+        y		: in std_logic_vector(data_size-1 downto 0);
+        prod	: out std_logic_vector ((2*data_size)-1 downto 0)
     );
 	end component;
 
