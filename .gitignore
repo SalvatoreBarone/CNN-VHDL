@@ -1,0 +1,5 @@
+build
+*.swp
+tags
+.idea/
+cmake-build-debug
