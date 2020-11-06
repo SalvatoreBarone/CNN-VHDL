@@ -37,12 +37,12 @@ if($GHDL_VERSION_STRING STREQUAL "")
 else()
     message(STATUS "Found ${GHDL_VERSION_STRING}")
 endif()
-#execute_process(COMMAND gtkwave --version OUTPUT_VARIABLE GTKWAVE_VERSION_STRING)
-#if($GTKWAVE_VERSION_STRING STREQUAL "")
-#    message(FATAL_ERROR "GTKWAVE not found")
-#else()
-#    message(STATUS "Found ${GTKWAVE_VERSION_STRING}")
-#endif()
+execute_process(COMMAND gtkwave --version OUTPUT_VARIABLE GTKWAVE_VERSION_STRING)
+if($GTKWAVE_VERSION_STRING STREQUAL "")
+    message(FATAL_ERROR "GTKWAVE not found")
+else()
+    message(STATUS "Found ${GTKWAVE_VERSION_STRING}")
+endif()
 
 #Let cmake enables the ctest environment, then specify that the command runtest
 # effectively runs ctest

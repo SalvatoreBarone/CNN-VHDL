@@ -28,7 +28,8 @@ architecture tb_sum_reduct of tb_sum_reduct is
 
 	constant clock_period : time := 10 ns;
 	constant noperands : natural := 4;
-	constant data_size : natural := 4;
+	constant data_size : natural := 6;
+  constant latency : natural := (log2(noperands)+1);
 
 	signal clk : std_logic := '0';
 	signal reset_n : std_logic := '0';
@@ -70,21 +71,20 @@ begin
 		reset_n <= '0', '1' after 5*clock_period;
 		wait for 7*clock_period;
 		
-		for op_3 in 0 to 2**data_size -1 loop
-			for op_2 in 0 to 2**data_size -1 loop
-				for op_1 in 0 to 2**data_size -1 loop
-					for op_0 in 0 to 2**data_size -1 loop
+		for op_3 in -2**(data_size-1) to 2**(data_size-1)-1 loop
+			for op_2 in -2**(data_size-1) to 2**(data_size-1)-1 loop
+				for op_1 in -2**(data_size-1) to 2**(data_size-1)-1 loop
+					for op_0 in -2**(data_size-1) to 2**(data_size-1)-1 loop
 
-					data_in <= 	std_logic_vector(to_unsigned(op_3, data_size)) &
-								std_logic_vector(to_unsigned(op_2, data_size)) &
-								std_logic_vector(to_unsigned(op_1, data_size)) &
-								std_logic_vector(to_unsigned(op_0, data_size));
+					data_in <= 	std_logic_vector(to_signed(op_3, data_size)) &
+								std_logic_vector(to_signed(op_2, data_size)) &
+								std_logic_vector(to_signed(op_1, data_size)) &
+								std_logic_vector(to_signed(op_0, data_size));
 
 					sum := op_0 + op_1 + op_2 + op_3;
-					data_out_test <= 
-						std_logic_vector(to_unsigned(sum, data_size+log2(noperands)));
+					data_out_test <= std_logic_vector(to_signed(sum, data_size+log2(noperands)));
 
-					wait for (log2(noperands)+1)*clock_period;
+					wait for (latency+1)*clock_period;
 
 					assert data_out = data_out_test
 					report	"Errore!"

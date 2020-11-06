@@ -5,7 +5,10 @@ add_vhdl_source(adder.vhd adder)
 add_dependencies(adder full_adder)
 
 add_vhdl_source(multiplier.vhd multiplier)
-add_dependencies(multiplier adder)
+add_dependencies(multiplier adder generic_register)
+
+add_vhdl_source(piped_adder.vhd piped_adder)
+add_dependencies(piped_adder adder generic_register)
 
 add_vhdl_source(sum_reduct.vhd sum_reduct)
-add_dependencies(sum_reduct adder generic_register)
+add_dependencies(sum_reduct utils piped_adder)
