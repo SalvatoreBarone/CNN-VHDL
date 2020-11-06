@@ -1,4 +1,5 @@
 add_vhdl_source(full_adder.vhd full_adder)
+add_vhdl_source(wired_shift.vhd wired_shift)
 
 add_vhdl_source(adder.vhd adder)
 add_dependencies(adder full_adder)
