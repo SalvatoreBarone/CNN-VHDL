@@ -33,7 +33,7 @@ architecture behavioral of tb_neuron is
 
   ------------------------------------------------------------------------------
   -- Generics
-  constant input_depth    : natural       := 1;
+  constant input_depth    : natural       := 120;
   constant ker_width      : natural       := 5;
   constant ker_height     : natural       := 5;
   constant act_kind       : activation_t  := rectifier;

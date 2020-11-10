@@ -20,12 +20,12 @@ use work.activation_functions.all;
 entity neuron is
   generic (
     -- Structural properties of convolutional kernel
-    input_depth   : natural;                                                                 -- Number of input channels
-    ker_width     : natural;                                                                 -- Kernel width
-    ker_height    : natural;                                                                 -- Kernel height
-    act_kind      : activation_t;                                                            -- type of activation
-    act_unsigned  : boolean;                                                                 -- do esthe activation work on unsigned data?
-    shift         : integer);                                                                -- shift amount for the activation function
+    input_depth   : natural      := 120;                                                       -- Number of input channels
+    ker_width     : natural      := 5;                                                       -- Kernel width
+    ker_height    : natural      := 5;                                                       -- Kernel height
+    act_kind      : activation_t := rectifier;                                               -- type of activation
+    act_unsigned  : boolean      := true;                                                    -- do the activation work on unsigned data?
+    shift         : integer      := 2);                                                      -- shift amount for the activation function
   port (
     clock         : in std_logic;                                                             -- Clock signal
     reset_n       : in std_logic;                                                             -- Reset signal (active low)
@@ -97,8 +97,8 @@ begin
   w_i_loop_z : for sz in 0 to input_depth-1 generate
     w_i_loop_y: for sy in 0 to ker_height-1 generate
       w_i_loop_x : for sx in 0 to ker_width-1 generate
-        ext_weights((input_depth*ker_height*sz)+(ker_height*sy)+sx) <= weights(sz, sy, sx)(data_size-1) & weights(sz, sy, sx);
-        uns_inputs((input_depth*ker_height*sz)+(ker_height*sy)+sx) <= '0' & inputs(sz, sy, sx);
+        ext_weights((ker_width*ker_height*sz)+(ker_width*sy)+sx) <= weights(sz, sy, sx)(data_size-1) & weights(sz, sy, sx);
+        uns_inputs((ker_width*ker_height*sz)+(ker_width*sy)+sx) <= '0' & inputs(sz, sy, sx);
       end generate;
     end generate;
   end generate;  
