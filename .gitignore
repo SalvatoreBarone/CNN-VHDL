@@ -5,3 +5,7 @@ tags
 cmake-build-debug
 
 .vscode/
+
+reports/
+
+neuron_synth/
