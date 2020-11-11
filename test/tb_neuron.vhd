@@ -33,7 +33,7 @@ architecture behavioral of tb_neuron is
 
   ------------------------------------------------------------------------------
   -- Generics
-  constant input_depth    : natural       := 120;
+  constant input_depth    : natural       := 1;
   constant ker_width      : natural       := 5;
   constant ker_height     : natural       := 5;
   constant act_kind       : activation_t  := rectifier;
@@ -51,7 +51,7 @@ architecture behavioral of tb_neuron is
   ------------------------------------------------------------------------------
   -- Testbench signals
 	constant clock_period   : time          := 10 ns;
-  constant latency        : natural       := log2(input_depth*ker_height*ker_width)+10;
+  constant latency        : natural       := log2(input_depth*ker_height*ker_width)+7;
   file     test_oracle    : text;
 	signal   simulate       : std_logic     := '1';
 begin

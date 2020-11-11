@@ -33,9 +33,12 @@ architecture behavioral of tb_neuron_scomposto is
 
   component multiplier is
   	generic (data_size : integer);
-  	port (	x			: in std_logic_vector(data_size-1 downto 0);
-  					y			: in std_logic_vector(data_size-1 downto 0);
-  					prod	: out std_logic_vector ((2*data_size)-1 downto 0));
+    port (
+      clock         : in std_logic;
+      reset_n       : in std_logic;
+      x             : in  std_logic_vector(data_size-1 downto 0);
+      y             : in  std_logic_vector(data_size-1 downto 0);
+      prod          : out std_logic_vector ((2*data_size)-1 downto 0));
   end component;
   component generic_register is
   	generic(data_size : natural);
@@ -91,7 +94,7 @@ architecture behavioral of tb_neuron_scomposto is
   ------------------------------------------------------------------------------
   -- Testbench signals
 	constant clock_period   : time          := 10 ns;
-  constant latency        : natural       := log2(input_depth*ker_height*ker_width)+10;
+  constant latency        : natural       := log2(input_depth*ker_height*ker_width)+7;
   file     test_oracle    : text;
 	signal   simulate       : std_logic     := '1';
 begin
@@ -114,7 +117,7 @@ begin
   -- Synapse   
   -- Partial product computation
   pprod_loop : for i in 0 to num_terms-1 generate
-        mul_w_i : multiplier generic map(internal_data_size) port map (ext_weights(i), uns_inputs(i), pprod_unbuf(i));
+        mul_w_i : multiplier generic map(internal_data_size) port map (clock, reset_n, ext_weights(i), uns_inputs(i), pprod_unbuf(i));
         buf_pprodd : generic_register generic map(pprod_size) port map(clock, reset_n, pprod_unbuf(i), '1', pprod(i));
   end generate;
 
