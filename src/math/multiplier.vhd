@@ -26,16 +26,14 @@ end structural;
 
 library ieee;
 use ieee.std_logic_1164.all;
-entity mac_row is
-  generic (data_size : natural := 4);
-  port (  
-    x      : in std_logic_vector (data_size-1 downto 0);
-    y      : in std_logic;
-    sumin  : in std_logic_vector (data_size-1 downto 0);
-    sumout : out std_logic_vector (data_size-1 downto 0);
-    cout   : out std_logic);
-end mac_row;
-architecture structural of mac_row is
+entity unsigned_multiplier is
+  generic (data_size : integer := 8);
+  port (
+    x     : in  std_logic_vector(data_size-1 downto 0);
+    y     : in  std_logic_vector(data_size-1 downto 0);
+    prod  : out std_logic_vector ((2*data_size)-1 downto 0));
+end unsigned_multiplier;
+architecture structural of unsigned_multiplier is
   component mac_cell
     port (
       x    : in std_logic;
@@ -45,43 +43,18 @@ architecture structural of mac_row is
       sout : out std_logic;
       cout : out std_logic);
   end component;
-  signal carry : std_logic_vector (data_size downto 0) := (others => '0');
-begin
-  row : for i in 0 to data_size-1 generate
-      cell :  mac_cell port map (x(i), y, sumin(i), carry(i), sumout(i), carry(i+1));
-  end generate;
-  carry(0) <= '0';
-  cout <= carry(data_size);
-end structural;
+	type slv_array_t is array(natural range <>) of std_logic_vector(data_size downto 0);
+	signal intermediate : slv_array_t(0 to data_size) := (others => (others => '0'));
+  signal carry : slv_array_t (0 to data_size) := (others => (others => '0'));
 
-
-library ieee;
-use ieee.std_logic_1164.all;
-entity unsigned_multiplier is
-  generic (data_size : integer := 8);
-  port (
-    x     : in  std_logic_vector(data_size-1 downto 0);
-    y     : in  std_logic_vector(data_size-1 downto 0);
-    prod  : out std_logic_vector ((2*data_size)-1 downto 0));
-end unsigned_multiplier;
-architecture structural of unsigned_multiplier is
-	component mac_row
-    generic (data_size : natural := 4);
-    port (  
-      x      : in std_logic_vector (data_size-1 downto 0);
-      y      : in std_logic;
-      sumin  : in std_logic_vector (data_size-1 downto 0);
-      sumout : out std_logic_vector (data_size-1 downto 0);
-      cout   : out std_logic);
-	end component;
-	type sgn_mtx is array(0 to data_size) of std_logic_vector(data_size downto 0);
-	signal intermediate : sgn_mtx;
 begin
 	intermediate(0) <= (intermediate(0)'range => '0');
 	row_array :	for i in 0 to data_size-1 generate
-		row : mac_row
-				generic map (data_size)
-				port map (x, y(i), intermediate(i)(data_size downto 1), intermediate(i+1)(data_size-1 downto 0), intermediate(i+1)(data_size));
+    row : for j in 0 to data_size-1 generate
+        cell :  mac_cell port map (x(j), y(i), intermediate(i)(j+1), carry(i)(j), intermediate(i+1)(j), carry(i)(j+1));
+    end generate;
+    intermediate(i+1)(data_size) <= carry(i)(data_size);
+
 		prod(i) <= intermediate(i+1)(0);
 	end generate;
 	prod((2*data_size)-1 downto data_size-1) <= intermediate(data_size)(data_size downto 0);
