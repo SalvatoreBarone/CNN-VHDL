@@ -54,7 +54,6 @@ begin
         cell :  mac_cell port map (x(j), y(i), intermediate(i)(j+1), carry(i)(j), intermediate(i+1)(j), carry(i)(j+1));
     end generate;
     intermediate(i+1)(data_size) <= carry(i)(data_size);
-
 		prod(i) <= intermediate(i+1)(0);
 	end generate;
 	prod((2*data_size)-1 downto data_size-1) <= intermediate(data_size)(data_size downto 0);
@@ -84,7 +83,9 @@ architecture structural of magnitude_selector is
       data_out : out std_logic_vector (data_size-1 downto 0));
   end component;
   component piped_adder is
-    generic (data_size : natural := 16);
+  generic (
+    data_size     : natural;
+    approx_degree : natural);
     port (
       clock     : in   std_logic;
       reset_n   : in   std_logic;
@@ -101,7 +102,7 @@ architecture structural of magnitude_selector is
   signal   inputs_buffered  : std_logic_vector(data_size downto 0)   := (others => '0');
 begin
   inputs <= sign & data_in;
-  inv_data_in : piped_adder generic map (data_size) port map (clock, reset_n, zero_n, data_in, '1', data_inv, open, open);
+  inv_data_in : piped_adder generic map (data_size, 0) port map (clock, reset_n, zero_n, data_in, '1', data_inv, open, open);
   buf_data_in : generic_register generic map (data_size+1) port map(clock, reset_n, inputs, '1', inputs_buffered);
   sign_buffered <= inputs_buffered(inputs_buffered'left);
   with inputs_buffered(inputs_buffered'left) select

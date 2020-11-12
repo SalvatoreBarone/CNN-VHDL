@@ -5,8 +5,9 @@ use work.utils.all;
 
 entity sum_reduct is
   generic (
-    noperands : natural;                                                    -- number of operand to be summed
-    data_size : natural);                                                   -- size of each operand
+    noperands     : natural;                                                -- number of operand to be summed
+    data_size     : natural;                                               -- size of each operand
+    approx_degree : natural);
   port (
     clk     : in  std_logic;                                                -- clock
     rst_n   : in  std_logic;                                                -- reset (active low)
@@ -18,7 +19,9 @@ architecture structural of sum_reduct is
   constant tree_depth     : natural := log2(noperands);                      -- depth of the sum-reduct tree
   constant final_sum_size : natural := data_size+tree_depth;                 -- final data lenght of the sum
   component piped_adder is
-    generic (data_size : natural := 16);
+    generic (
+      data_size     : natural;
+      approx_degree : natural);
     port (
       clock     : in   std_logic;
       reset_n   : in   std_logic;
@@ -40,7 +43,7 @@ begin
   sum_tree : for level in 0 to tree_depth-1 generate
     sum_row : for i in 0 to noperands/(2**(level+1))-1 generate
       add: piped_adder
-        generic map(final_sum_size)
+        generic map(final_sum_size, approx_degree)
         port map(clk, rst_n, psum(level, 2*i), psum(level, 2*i+1), '0', psum(level+1, i), open, open);
     end generate;
   end generate;

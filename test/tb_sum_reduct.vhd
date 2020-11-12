@@ -14,11 +14,11 @@ end tb_sum_reduct;
 --! - data_size = 4 
 --!
 architecture tb_sum_reduct of tb_sum_reduct is
-
 	component sum_reduct is
-	  generic (
-	    noperands : natural;                                                    -- number of operand to be summed
-	    data_size : natural);                                                   -- size of each operand
+    generic (
+      noperands     : natural;                                                -- number of operand to be summed
+      data_size     : natural;                                               -- size of each operand
+      approx_degree : natural);
 	  port (
 			clk     : in std_logic;                                                 -- clock
 			rst_n   : in std_logic;                                                 -- reset (active low)
@@ -26,7 +26,8 @@ architecture tb_sum_reduct of tb_sum_reduct is
 			sum     : out std_logic_vector (data_size+log2(noperands)-1 downto 0));
 	end component;
 
-	constant clock_period : time := 10 ns;
+	constant approx_degree : natural := 0;
+  constant clock_period : time := 10 ns;
 	constant noperands : natural := 4;
 	constant data_size : natural := 6;
   constant latency : natural := (log2(noperands)+1);
@@ -59,7 +60,7 @@ begin
 	----------------------------------------------------------------------------
 	-- Istanza del componente sotto test
 	uut : sum_reduct
-		generic map (noperands, data_size)
+		generic map (noperands, data_size, approx_degree)
 		port map (clk, reset_n, data_in, data_out);
 
 	----------------------------------------------------------------------------

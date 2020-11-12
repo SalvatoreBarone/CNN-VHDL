@@ -20,12 +20,14 @@ use work.activation_functions.all;
 entity neuron is
   generic (
     -- Structural properties of convolutional kernel
-    input_depth   : natural      := 120;                                                       -- Number of input channels
-    ker_width     : natural      := 5;                                                       -- Kernel width
-    ker_height    : natural      := 5;                                                       -- Kernel height
-    act_kind      : activation_t := rectifier;                                               -- type of activation
-    act_unsigned  : boolean      := true;                                                    -- do the activation work on unsigned data?
-    shift         : integer      := 2);                                                      -- shift amount for the activation function
+    input_depth       : natural      := 120;                                                  -- Number of input channels
+    ker_width         : natural      := 5;                                                    -- Kernel width
+    ker_height        : natural      := 5;                                                    -- Kernel height
+    act_kind          : activation_t := rectifier;                                            -- type of activation
+    act_unsigned      : boolean      := true;                                                 -- do the activation work on unsigned data?
+    shift             : integer      := 2;                                                    -- shift amount for the activation function
+    add_approx_degree : natural      := 0;                                                    -- Approximation degree for adders
+    mul_approx_degree : natural      := 0);                                                   -- Approximation degree for multipliers
   port (
     clock         : in std_logic;                                                             -- Clock signal
     reset_n       : in std_logic;                                                             -- Reset signal (active low)
@@ -57,8 +59,9 @@ architecture structural of neuron is
   end component;
   component sum_reduct is
     generic (
-      noperands : natural;
-      data_size : natural);
+      noperands     : natural;
+      data_size     : natural;
+      approx_degree : natural);
     port (
   		clk     : in std_logic;
   		rst_n   : in std_logic;
@@ -127,7 +130,7 @@ begin
   end generate;
   -- Sum reduction
   reduct : sum_reduct
-    generic map(num_terms_2, pprod_size)
+    generic map(num_terms_2, pprod_size, add_approx_degree)
     port map (clock, reset_n, pprod_concat, sum);
   -- Activation function and saturation
   act : activation

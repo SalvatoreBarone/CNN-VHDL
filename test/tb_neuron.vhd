@@ -16,12 +16,14 @@ architecture behavioral of tb_neuron is
   component neuron is
   generic (
     -- Structural properties of convolutional kernel
-    input_depth   : natural;                                                                 -- Number of input channels
-    ker_width     : natural;                                                                 -- Kernel width
-    ker_height    : natural;                                                                 -- Kernel height
-    act_kind      : activation_t;                                                            -- type of activation
-    act_unsigned  : boolean;                                                                 -- do esthe activation work on unsigned data?
-    shift         : integer);                                                                -- shift amount for the activation function
+    input_depth       : natural      := 120;                                                  -- Number of input channels
+    ker_width         : natural      := 5;                                                    -- Kernel width
+    ker_height        : natural      := 5;                                                    -- Kernel height
+    act_kind          : activation_t := rectifier;                                            -- type of activation
+    act_unsigned      : boolean      := true;                                                 -- do the activation work on unsigned data?
+    shift             : integer      := 2;                                                    -- shift amount for the activation function
+    add_approx_degree : natural      := 0;                                                    -- Approximation degree for adders
+    mul_approx_degree : natural      := 0);                                                   -- Approximation degree for multipliers
   port (
     clock         : in std_logic;                                                             -- Clock signal
     reset_n       : in std_logic;                                                             -- Reset signal (active low)
@@ -33,19 +35,21 @@ architecture behavioral of tb_neuron is
 
   ------------------------------------------------------------------------------
   -- Generics
-  constant input_depth    : natural       := 1;
-  constant ker_width      : natural       := 5;
-  constant ker_height     : natural       := 5;
-  constant act_kind       : activation_t  := rectifier;
-  constant act_unsigned   : boolean       := true;
-  constant shift          : integer       := 2;
+  constant input_depth       : natural       := 1;
+  constant ker_width         : natural       := 5;
+  constant ker_height        : natural       := 5;
+  constant act_kind          : activation_t  := rectifier;
+  constant act_unsigned      : boolean       := true;
+  constant shift             : integer       := 2;
+  constant add_approx_degree : natural       := 0;
+  constant mul_approx_degree : natural       := 0;
   -- Port
-  signal   clock          : std_logic := '0';
-  signal   reset_n        : std_logic := '0';
-  signal   inputs         : data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1) := (others => (others => (others => (others => '0'))));
-  signal   bias           : std_logic_vector(data_size-1 downto 0) := (others => '0'); 
-  signal   weights        : data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1) := (others => (others => (others => (others => '0'))));
-  signal   outputs        : std_logic_vector(data_size-1 downto 0) := (others => '0');
+  signal   clock             : std_logic := '0';
+  signal   reset_n           : std_logic := '0';
+  signal   inputs            : data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1) := (others => (others => (others => (others => '0'))));
+  signal   bias              : std_logic_vector(data_size-1 downto 0) := (others => '0'); 
+  signal   weights           : data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1) := (others => (others => (others => (others => '0'))));
+  signal   outputs           : std_logic_vector(data_size-1 downto 0) := (others => '0');
   ------------------------------------------------------------------------------
 
   ------------------------------------------------------------------------------
@@ -56,7 +60,7 @@ architecture behavioral of tb_neuron is
 	signal   simulate       : std_logic     := '1';
 begin
   uut: neuron
-    generic map (input_depth, ker_width, ker_height, act_kind, act_unsigned, shift)
+    generic map (input_depth, ker_width, ker_height, act_kind, act_unsigned, shift, add_approx_degree, mul_approx_degree)
     port map(clock, reset_n, inputs, bias, weights, outputs);
 
 	clock_process : process

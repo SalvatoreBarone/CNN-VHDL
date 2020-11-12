@@ -11,33 +11,36 @@ end tb_piped_adder;
  
 architecture behavioral of tb_piped_adder is 
   component piped_adder is
-  generic (data_size : natural := 16);
-  port (
-    clock     : in   std_logic;
-    reset_n   : in   std_logic;
-    add_1     : in   std_logic_vector (data_size-1 downto 0);
-    add_2     : in   std_logic_vector (data_size-1 downto 0);
-    sub_add_n : in   std_logic;
-    sum       : out  std_logic_vector (data_size-1 downto 0);
-    carry_out : out  std_logic;
-    overflow  : out  std_logic);
+    generic (
+      data_size     : natural;
+      approx_degree : natural);
+    port (
+      clock     : in   std_logic;
+      reset_n   : in   std_logic;
+      add_1     : in   std_logic_vector (data_size-1 downto 0);
+      add_2     : in   std_logic_vector (data_size-1 downto 0);
+      sub_add_n : in   std_logic;
+      sum       : out  std_logic_vector (data_size-1 downto 0);
+      carry_out : out  std_logic;
+      overflow  : out  std_logic);
   end component;
 
-  constant  data_size    : natural                                  := 8;
-  signal    clock        : std_logic                                := '0';
-  signal    reset_n      : std_logic                                := '0';
-  signal    add_1        : std_logic_vector (data_size-1 downto 0)  := (others => '0');
-  signal    add_2        :  std_logic_vector (data_size-1 downto 0) := (others => '0');
-  signal    sub_add_n    : std_logic                                := '0';
-  signal    sum          : std_logic_vector (data_size-1 downto 0)  := (others => '0');
-  constant  clock_period : time                                     := 10 ns;
-  constant  latency      : natural                                  := 1;
-  signal    simulate     : std_logic                                := '1';
+  constant  data_size     : natural                                  := 8;
+  constant  approx_degree : natural                                 := 0;
+  signal    clock         : std_logic                                := '0';
+  signal    reset_n       : std_logic                                := '0';
+  signal    add_1         : std_logic_vector (data_size-1 downto 0)  := (others => '0');
+  signal    add_2         :  std_logic_vector (data_size-1 downto 0) := (others => '0');
+  signal    sub_add_n     : std_logic                                := '0';
+  signal    sum           : std_logic_vector (data_size-1 downto 0)  := (others => '0');
+  constant  clock_period  : time                                     := 10 ns;
+  constant  latency       : natural                                  := 1;
+  signal    simulate      : std_logic                                := '1';
   
 begin
 
   uut : piped_adder
-    generic map(data_size)
+    generic map(data_size, approx_degree)
     port map (clock, reset_n, add_1, add_2, sub_add_n, sum, open, open);
 
   clock_process : process
