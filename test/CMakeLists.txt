@@ -26,3 +26,6 @@ add_dependencies(tb_activation activation debug_func)
 
 add_testbench_source(tb_neuron.vhd tb_neuron)
 add_dependencies(tb_neuron utils neuron)
+
+add_testbench_source(tb_approx_neuron.vhd tb_approx_neuron)
+add_dependencies(tb_approx_neuron utils neuron)

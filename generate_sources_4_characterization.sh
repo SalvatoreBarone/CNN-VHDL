@@ -1,19 +1,28 @@
 #!/bin/bash
 usage() {
-        echo "Usage: $0 -x /xilinx/vivado -d destination -i input_depth -m mul_approx_degree -a add_approx_degree";
+        echo "Usage: $0 -v /xilinx/vivado -t destination [-d data_size] [-z input_depth] [-y kernel_height] [-x kernel_width] [-m mul_approx_degree] [-a add_approx_degree]";
         exit 1;
 }
 
-while getopts "x:d:i:m:a:" o; do
+while getopts "v:t:d:z:y:x:m:a:" o; do
     case "${o}" in
-        x)
+        v)
             xilinx_vivado=${OPTARG}
             ;;
-        d)
+        t)
             destination=${OPTARG}
             ;;
-        i)
+        d)
+            data_size=${OPTARG}
+            ;;
+        z)
             input_depth=${OPTARG}
+            ;;
+        y)
+            kernel_height=${OPTARG}
+            ;;
+        x)  
+            kernel_width=${OPTARG}
             ;;
         m)
             mul_approx=${OPTARG}
@@ -28,7 +37,7 @@ while getopts "x:d:i:m:a:" o; do
 done
 shift $((OPTIND-1))
 
-if [ -z "${xilinx_vivado}" ] || [ -z "${destination}" ] || [ -z "${input_depth}" ] || [ -z "${mul_approx}" ]|| [ -z "${add_approx}" ]; then
+if [ -z "${xilinx_vivado}" ] || [ -z "${destination}" ]; then
     usage
 fi
 
@@ -40,6 +49,31 @@ destination=$(realpath $destination)
 
 mkdir -p $destination
 cp -t $destination src/utils.vhd src/math/piped_adder.vhd src/math/sum_reduct.vhd src/math/wired_shift.vhd src/math/adder.vhd src/math/full_adder.vhd src/mem/generic_register.vhd src/math/multiplier.vhd src/nn/cells/activation.vhd src/nn/cells/neuron.vhd Vivado/create_project.tcl 
+
+if [[ ! -z "$data_size" ]]; then
+  sed "s/\s\sconstant data_size\s:\snatural\s:=\s8/  constant data_size : natural := ${data_size}/g" -i $destination/neuron.vhd
+fi
+
+if [[ ! -z "$input_depth" ]]; then
+  sed "s/\s\s\s\sinput_depth\s\s\s\s\s\s\s:\snatural\s\s\s\s\s\s:=\s120/    input_depth       : natural      := ${input_depth}/g" -i $destination/neuron.vhd
+fi
+
+if [[ ! -z "$kernel_width" ]]; then
+  sed "s/\s\s\s\sker_width\s\s\s\s\s\s\s\s\s:\snatural\s\s\s\s\s\s:=\s5/    ker_width         : natural      := ${kernel_width}/g" -i $destination/neuron.vhd
+fi
+
+if [[ ! -z "$kernel_height" ]]; then
+  sed "s/\s\s\s\sker_height\s\s\s\s\s\s\s\s:\snatural\s\s\s\s\s\s:=\s5/    ker_height        : natural      := ${kernel_height}/g" -i $destination/neuron.vhd
+fi
+
+if [[ ! -z "$add_approx" ]]; then
+  sed "s/\s\s\s\sadd_approx_degree\s:\snatural\s\s\s\s\s\s:=\s0/    add_approx_degree : natural      := ${add_approx}/g" -i $destination/neuron.vhd
+fi
+
+if [[ ! -z "$mul_approx" ]]; then
+  sed "s/\s\s\s\smul_approx_degree\s:\snatural\s\s\s\s\s\s:=\s0/    mul_approx_degree : natural      := ${mul_approx}/g" -i $destination/neuron.vhd
+fi
+
 
 echo "${xilinx_vivado} -mode batch -nojournal -nolog -notrace -source create_project.tcl > log.txt" > ${destination}/run_synth.sh
 chmod +x ${destination}/run_synth.sh

@@ -9,3 +9,6 @@ cmake-build-debug
 reports/
 
 neuron_synth/
+
+*.o
+Synthesis
