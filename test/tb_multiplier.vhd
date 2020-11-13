@@ -10,7 +10,9 @@ end tb_multiplier;
 
 architecture behavior of tb_multiplier is
 	component multiplier
-    generic (data_size : integer := 8);
+    generic (
+      data_size     : natural;
+      approx_degree : natural);
     port (
       clock         : in std_logic;
       reset_n       : in std_logic;
@@ -30,8 +32,8 @@ architecture behavior of tb_multiplier is
 	constant clock_period : time := 10 ns;
 	signal simulate : std_logic := '1';
  
-BEGIN
-	uut: multiplier generic map (data_size)	port map (clock, reset_n, x, y, prod);
+begin
+	uut: multiplier generic map (data_size, 0)	port map (clock, reset_n, x, y, prod);
 
 	clock_process : process
 	begin

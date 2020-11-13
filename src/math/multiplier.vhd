@@ -26,8 +26,12 @@ end structural;
 
 library ieee;
 use ieee.std_logic_1164.all;
+library work;
+use work.utils.all;
 entity unsigned_multiplier is
-  generic (data_size : integer := 8);
+  generic (
+    data_size     : natural;
+    approx_degree : natural);
   port (
     x     : in  std_logic_vector(data_size-1 downto 0);
     y     : in  std_logic_vector(data_size-1 downto 0);
@@ -43,20 +47,26 @@ architecture structural of unsigned_multiplier is
       sout : out std_logic;
       cout : out std_logic);
   end component;
-	type slv_array_t is array(natural range <>) of std_logic_vector(data_size downto 0);
-	signal intermediate : slv_array_t(0 to data_size) := (others => (others => '0'));
-  signal carry : slv_array_t (0 to data_size) := (others => (others => '0'));
-
+	type slv_array_t is array(natural range <>) of std_logic_vector(2*data_size-1 downto 0);
+  signal carry        : slv_array_t (0 to data_size-1)            := (others => (others => '0'));
+  signal partial_sums : slv_array_t (0 to data_size)              := (others => (others => '0'));
+  signal prod_tmp     : std_logic_vector(2*data_size-1 downto 0)  := (others => '0');
 begin
-	intermediate(0) <= (intermediate(0)'range => '0');
-	row_array :	for i in 0 to data_size-1 generate
-    row : for j in 0 to data_size-1 generate
-        cell :  mac_cell port map (x(j), y(i), intermediate(i)(j+1), carry(i)(j), intermediate(i+1)(j), carry(i)(j+1));
+  rows : for i in approx_degree to data_size-1 generate
+    cells : for j in int_max(0, 2*approx_degree-i) to data_size-1 generate
+      cell : mac_cell port map (x(j), y(i), partial_sums(i)(i+j), carry(i)(i+j), partial_sums(i+1)(i+j), carry(i)(i+j+1));
     end generate;
-    intermediate(i+1)(data_size) <= carry(i)(data_size);
-		prod(i) <= intermediate(i+1)(0);
-	end generate;
-	prod((2*data_size)-1 downto data_size-1) <= intermediate(data_size)(data_size downto 0);
+    partial_sums(i+1)(i+data_size) <= carry(i)(i+data_size);
+    prod_tmp(i) <= partial_sums(i+1)(i);
+  end generate;
+  prod_tmp(2*data_size-1 downto data_size) <= partial_sums(data_size)(2*data_size-1 downto data_size);
+  no_approx : if approx_degree = 0 generate
+    prod <= prod_tmp;
+  end generate;
+  approx : if approx_degree /= 0 generate
+    prod(2*data_size-1 downto 2*approx_degree) <= prod_tmp(2*data_size-1 downto 2*approx_degree);
+    prod(2*approx_degree-1 downto 0) <= (others => '0');
+  end generate;
 end structural;
 
 
@@ -114,7 +124,9 @@ end structural;
 library ieee;
 use ieee.std_logic_1164.all;
 entity multiplier is
-  generic (data_size : integer := 8);
+  generic (
+    data_size     : natural;
+    approx_degree : natural);
   port (
     clock         : in std_logic;
     reset_n       : in std_logic;
@@ -134,7 +146,9 @@ architecture structural of multiplier is
       sign_buffered : out std_logic);                             -- sign buffered (for pipelided architectures). can be left open
   end component;
   component unsigned_multiplier is
-  generic (data_size : integer := 8);
+    generic (
+      data_size     : natural;
+      approx_degree : natural);
     port (
       x     : in  std_logic_vector(data_size-1 downto 0);
       y     : in  std_logic_vector(data_size-1 downto 0);
@@ -149,25 +163,38 @@ architecture structural of multiplier is
       en       : in  std_logic;
       data_out : out std_logic_vector (data_size-1 downto 0));
   end component;
-  signal sign_1            : std_logic                                   := '0';
-  signal sign_2            : std_logic                                   := '0';
-  signal final_sign_unbuff : std_logic_vector(0 downto 0)                := (others => '0');
-  signal final_sign_buff   : std_logic_vector(0 downto 0)                := (others => '0');
-  signal multiplicand_1    : std_logic_vector(data_size-1 downto 0)      := (others => '0');
-  signal multiplicand_2    : std_logic_vector(data_size-1 downto 0)      := (others => '0');
-  signal product_unbuff    : std_logic_vector ((2*data_size)-1 downto 0) := (others => '0');
-  signal product_buff      : std_logic_vector ((2*data_size)-1 downto 0) := (others => '0');
+  signal sign_1            : std_logic                       := '0';
+  signal sign_2            : std_logic                       := '0';
+  signal final_sign_unbuff : std_logic_vector(0 downto 0)    := (others => '0');
+  signal final_sign_buff   : std_logic_vector(0 downto 0)    := (others => '0');
+  signal multiplicand_1    : std_logic_vector(x'range)       := (others => '0');
+  signal multiplicand_2    : std_logic_vector(y'range)       := (others => '0');
+  signal product_unbuff    : std_logic_vector (prod'range)   := (others => '0');
+  signal product_buff      : std_logic_vector (prod'range)   := (others => '0');
+  signal approx_x          : std_logic_vector(x'range)       := (others => '0');
+  signal approx_y          : std_logic_vector(y'range)       := (others => '0');
 begin
   -- There are many methods to multiply 2's complement numbers. 
   -- The easiest is to simply find the magnitude of the two multiplicands, 
   -- multiply these together, and then use the original sign bits to determine 
   -- the sign of the result. 
-  x_sel : magnitude_selector generic map (data_size) port map(clock, reset_n, x(x'left), x, multiplicand_1, sign_1);
-  y_sel : magnitude_selector generic map (data_size) port map(clock, reset_n, y(y'left), y, multiplicand_2, sign_2);
+  no_approx : if approx_degree = 0 generate
+    x_sel : magnitude_selector generic map (data_size) port map(clock, reset_n, x(x'left), x, multiplicand_1, sign_1);
+    y_sel : magnitude_selector generic map (data_size) port map(clock, reset_n, y(y'left), y, multiplicand_2, sign_2);
+  end generate; 
+  approx : if approx_degree /= 0 generate
+    -- Masking operands, in case approx_degree /= 0
+    approx_x(data_size-1 downto approx_degree) <= x(data_size-1 downto approx_degree);
+    approx_y(data_size-1 downto approx_degree) <= y(data_size-1 downto approx_degree);
+    approx_x(approx_degree-1 downto 0) <= (others => '0');
+    approx_y(approx_degree-1 downto 0) <= (others => '0');
+    x_sel : magnitude_selector generic map (data_size) port map(clock, reset_n, x(x'left), approx_x, multiplicand_1, sign_1);
+    y_sel : magnitude_selector generic map (data_size) port map(clock, reset_n, y(y'left), approx_y, multiplicand_2, sign_2);
+  end generate; 
   final_sign_unbuff(0) <= sign_1 xor sign_2;
   -- Computing unsigned multiplication
   mul : unsigned_multiplier
-    generic map(data_size)
+    generic map(data_size, approx_degree)
     port map(multiplicand_1, multiplicand_2, product_unbuff);
   mul_buf : generic_register generic map (2*data_size) port map (clock, reset_n, product_unbuff, '1', product_buff); 
   sig_buf : generic_register generic map (1) port map (clock, reset_n, final_sign_unbuff, '1', final_sign_buff);

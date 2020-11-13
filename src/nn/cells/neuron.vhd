@@ -39,7 +39,9 @@ end neuron;
 
 architecture structural of neuron is
   component multiplier is
-  	generic (data_size : integer);
+    generic (
+      data_size     : natural;
+      approx_degree : natural);
     port (
       clock         : in std_logic;
       reset_n       : in std_logic;
@@ -118,7 +120,7 @@ begin
   -- Synapse   
   -- Partial product computation
   pprod_loop : for i in 0 to num_terms-1 generate
-        mul_w_i : multiplier generic map(internal_data_size) port map (clock, reset_n, ext_weights(i), uns_inputs(i), pprod_unbuf(i));
+        mul_w_i : multiplier generic map(internal_data_size, mul_approx_degree) port map (clock, reset_n, ext_weights(i), uns_inputs(i), pprod_unbuf(i));
         buf_pprodd : generic_register generic map(pprod_size) port map(clock, reset_n, pprod_unbuf(i), '1', pprod(i));
   end generate;
 
