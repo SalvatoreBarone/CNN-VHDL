@@ -1,3 +1,20 @@
+-- Copyright 2020	Salvatore Barone <salvatore.barone@unina.it>
+-- 
+-- This file is part of CNN-VHDL
+-- 
+-- This is free software; you can redistribute it and/or modify it under
+-- the terms of the GNU General Public License as published by the Free
+-- Software Foundation; either version 3 of the License, or any later version.
+-- 
+-- This is distributed in the hope that it will be useful, but WITHOUT
+-- ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+-- FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+-- more details.
+-- 
+-- You should have received a copy of the GNU General Public License along with
+-- RMEncoder; if not, write to the Free Software Foundation, Inc., 51 Franklin
+-- Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
 library ieee;
 use ieee.std_logic_1164.all;
 
@@ -38,6 +55,16 @@ entity neuron is
 end neuron;
 
 architecture structural of neuron is
+  component pipe_delay is
+    generic (
+      data_size : natural;
+      stages    : natural);
+    port (
+      clock     : in  std_logic;
+      reset_n   : in  std_logic;
+      data_in   : in  std_logic_vector(data_size-1 downto 0);
+      data_out  : out std_logic_vector(data_size-1 downto 0));
+  end component;
   component multiplier is
     generic (
       data_size     : natural;
@@ -101,7 +128,7 @@ architecture structural of neuron is
   signal pprod_unbuf          : pprod_t(num_terms-1 downto 0) := (others => (others => '0'));                             -- partial products terms as they comes from multipliers
   signal pprod                : pprod_t(num_terms-1 downto 0) := (others => (others => '0'));                             -- partial product terms after the pipe stage  
 begin
-  -- and weights inputs assignment
+  -- inputs and weights assignment
   w_i_loop_z : for sz in 0 to input_depth-1 generate
     w_i_loop_y: for sy in 0 to ker_height-1 generate
       w_i_loop_x : for sx in 0 to ker_width-1 generate
@@ -114,16 +141,15 @@ begin
   ------------------------------------------------------------------------------
   -- Neuron implementation
   -- Bias buffering (so it traverses tha same amount of pipe stages)
-  bias_buf : generic_register
-    generic map (data_size)
-    port map(clock, reset_n, bias, '1', bias_buffered);
+  bias_buf : pipe_delay
+    generic map (data_size, 3)
+    port map(clock, reset_n, bias, bias_buffered);
   -- Synapse   
   -- Partial product computation
   pprod_loop : for i in 0 to num_terms-1 generate
         mul_w_i : multiplier generic map(internal_data_size, mul_approx_degree) port map (clock, reset_n, ext_weights(i), uns_inputs(i), pprod_unbuf(i));
         buf_pprodd : generic_register generic map(pprod_size) port map(clock, reset_n, pprod_unbuf(i), '1', pprod(i));
   end generate;
-
   -- Neuron body
   -- Terms concatenation
   pprod_concat(data_size-1 downto 0) <= bias_buffered;
