@@ -268,12 +268,12 @@ if {[string equal [get_filesets -quiet sim_1] ""]} {
 # Set 'sim_1' fileset object
 set obj [get_filesets sim_1]
 set files [list \
- [file normalize "${origin_dir}/tb_neuron_scomposto.vhd"] \
+ [file normalize "${origin_dir}/tb_neuron_4dpa.vhd"] \
 ]
 add_files -norecurse -fileset $obj $files
 
 # Set 'sim_1' fileset file properties for remote files
-set file "${origin_dir}/tb_neuron_scomposto.vhd"
+set file "${origin_dir}/tb_neuron_4dpa.vhd"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sim_1] [list "*$file"]]
 set_property -name "file_type" -value "VHDL" -objects $file_obj
@@ -297,7 +297,7 @@ set_property -name "systemc_include_dirs" -value "" -objects $obj
 set_property -name "top" -value "neuron" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
 set_property -name "xsim.simulate.runtime" -value "1s" -objects $obj
-set_property -name "xsim.simulate.saif" -value "tb_neuron_scomposto.saif" -objects $obj
+set_property -name "xsim.simulate.saif" -value "tb_neuron_4dpa.saif" -objects $obj
 set_property -name "transport_int_delay" -value "0" -objects $obj
 set_property -name "transport_path_delay" -value "0" -objects $obj
 set_property -name "verilog_define" -value "" -objects $obj
