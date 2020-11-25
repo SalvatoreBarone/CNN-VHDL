@@ -3,17 +3,8 @@ build
 tags
 .idea/
 cmake-build-debug
-
 .vscode/
-
 reports/
-
 neuron_synth/
-
 *.o
-Synthesis
 
-Summary/
-Vivado
-extract_data.sh
-generate_sources_4_characterization.sh

@@ -27,5 +27,8 @@ add_dependencies(tb_activation activation debug_func)
 add_testbench_source(tb_neuron.vhd tb_neuron)
 add_dependencies(tb_neuron utils neuron)
 
+add_testbench_source(tb_neuron_scomposto.vhd tb_neuron_scomposto)
+add_dependencies(tb_neuron_scomposto utils multiplier generic_register pipe_delay sum_reduct activation)
+
 add_testbench_source(tb_approx_neuron.vhd tb_approx_neuron)
 add_dependencies(tb_approx_neuron utils neuron)

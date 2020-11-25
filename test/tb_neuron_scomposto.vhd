@@ -17,44 +17,48 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use std.textio.all;
+use ieee.std_logic_textio.all;
 
-package data_types is
+library work;
+use work.utils.all;
+use work.activation_functions.all;
+ 
+entity tb_neuron_scomposto is
+end tb_neuron_scomposto;
+
+architecture mixed_structural_behavioral of tb_neuron_scomposto is
+  ------------------------------------------------------------------------------
+  -- Types
   constant data_size : natural := 8;
   type data_vector is array (natural range<>) of std_logic_vector(data_size-1 downto 0);  
   type data_matrix is array (natural range <>, natural range <>) of std_logic_vector (data_size-1 downto 0);
   type data_volume is array(natural range <>, natural range <>, natural range <>) of std_logic_vector(data_size-1 downto 0);
 	type data_hypervolume is array (natural range <>, natural range <>, natural range <>, natural range <>) of std_logic_vector(data_size -1 downto 0);
-end package;
+  
+  ------------------------------------------------------------------------------
+  -- Structural properties of convolutional kernel
+  constant input_depth       : natural      := 1;       -- Number of input channels
+  constant ker_width         : natural      := 5;         -- Kernel width
+  constant ker_height        : natural      := 5;         -- Kernel height
+  constant act_kind          : activation_t := rectifier; -- type of activation
+  constant act_unsigned      : boolean      := true;      -- do the activation work on unsigned data?
+  constant shift             : integer      := 2;         -- shift amount for the activation function
+  constant add_approx_degree : natural      := 0;         -- Approximation degree for adders
+  constant mul_approx_degree : natural      := 0;         -- Approximation degree for multipliers
 
-library ieee;
-use ieee.std_logic_1164.all;
+  ------------------------------------------------------------------------------
+  -- Ports
+  signal clock   : std_logic := '0';                                                                                                             -- Clock signal
+  signal reset_n : std_logic := '0';                                                                                                             -- Reset signal (active low)
+  signal inputs  : data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1) := (others => (others => (others => (others => '0'))));  -- input volume
+  signal bias    : std_logic_vector(data_size-1 downto 0)                               := (others => '0');                                      -- bias (single term) 
+  signal weights : data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1) := (others => (others => (others => (others => '0'))));  -- weights volume
+  signal outputs : std_logic_vector(data_size-1 downto 0)                               := (others => '0');                                      -- output
 
-library work;
-use work.utils.all;
-use work.data_types.all;
-use work.activation_functions.all;
-
-entity neuron is
-  generic (
-    -- Structural properties of convolutional kernel
-    input_depth       : natural      := 120;                                                  -- Number of input channels
-    ker_width         : natural      := 5;                                                    -- Kernel width
-    ker_height        : natural      := 5;                                                    -- Kernel height
-    act_kind          : activation_t := rectifier;                                            -- type of activation
-    act_unsigned      : boolean      := true;                                                 -- do the activation work on unsigned data?
-    shift             : integer      := 2;                                                    -- shift amount for the activation function
-    add_approx_degree : natural      := 0;                                                    -- Approximation degree for adders
-    mul_approx_degree : natural      := 0);                                                   -- Approximation degree for multipliers
-  port (
-    clock         : in std_logic;                                                             -- Clock signal
-    reset_n       : in std_logic;                                                             -- Reset signal (active low)
-    inputs        : in data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);  -- input volume
-    bias          : in std_logic_vector(data_size-1 downto 0);                                -- bias (single term) 
-    weights       : in data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);  -- weights volume
-    outputs       : out std_logic_vector(data_size-1 downto 0));                              -- output
-end neuron;
-
-architecture structural of neuron is
+  ------------------------------------------------------------------------------
+  -- Components
   component pipe_delay is
     generic (
       data_size : natural;
@@ -109,6 +113,8 @@ architecture structural of neuron is
       data_out  : out std_logic_vector(final_data_size-1 downto 0));
   end component;
 
+  ------------------------------------------------------------------------------
+  -- Neuron's internal signals
   constant num_terms          : natural                                         := input_depth * ker_height * ker_width;  -- total amount of partial product terms (equals the volume size )
   constant num_terms_2        : natural                                         := 2 ** (log2(num_terms+1)+1);            -- next power of two for num_terms (note, it include the bias term now)
   constant internal_data_size : natural                                         := data_size+1;                           -- needed in order to convert inputs to unsigned
@@ -119,15 +125,23 @@ architecture structural of neuron is
   signal   bias_buffered      : std_logic_vector(data_size-1 downto 0)          := (others => '0');                       -- bias (buffered so it traverses the same amunt of pipe stages)
   signal   sum                : std_logic_vector(sum_size-1 downto 0)           := (others => '0');                       -- sum of the partial product terms (bias included)
   signal   output_unbuff      : std_logic_vector(data_size-1 downto 0)          := (others => '0');                       -- unbuffered output
-
   type iinputs_t              is array (natural range <>) of std_logic_vector(internal_data_size-1 downto 0);             -- new data type to hold sign-extended weights and unsigned inputs
   type pprod_t                is array (natural range <>) of std_logic_vector(pprod_size-1 downto 0);                     -- new data type to hold partual products
-
   signal ext_weights          : iinputs_t(num_terms-1 downto 0) := (others => (others => '0'));                           -- sign-extended weights
   signal uns_inputs           : iinputs_t(num_terms-1 downto 0) := (others => (others => '0'));                           -- inputs (unsigned)
   signal pprod_unbuf          : pprod_t(num_terms-1 downto 0) := (others => (others => '0'));                             -- partial products terms as they comes from multipliers
   signal pprod                : pprod_t(num_terms-1 downto 0) := (others => (others => '0'));                             -- partial product terms after the pipe stage  
+
+  ------------------------------------------------------------------------------
+  -- Testbench signals
+  constant latency        : natural       := log2(input_depth*ker_height*ker_width)+7;
+	constant clock_period   : time          := 10 ns;
+  file     test_oracle    : text;
+	signal   simulate       : std_logic     := '1';
+
 begin
+  ------------------------------------------------------------------------------
+  -- Neuron implementation
   -- inputs and weights assignment
   w_i_loop_z : for sz in 0 to input_depth-1 generate
     w_i_loop_y: for sy in 0 to ker_height-1 generate
@@ -165,4 +179,61 @@ begin
   output_buf : generic_register
     generic map (data_size)
     port map(clock, reset_n, output_unbuff, '1', outputs);
-end structural;  
+  ------------------------------------------------------------------------------
+
+	clock_process : process
+	begin
+		while simulate = '1' loop
+			clock <= not clock;
+			wait for clock_period / 2;
+		end loop;
+		wait;
+	end process clock_process;
+
+  stim_process : process
+    variable rline        : line;
+    variable space        : character;
+    variable read_bias    : std_logic_vector(data_size-1 downto 0); 
+    variable read_weights : data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);
+    variable read_inputs  : data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);
+    variable read_outputs : std_logic_vector(data_size-1 downto 0);
+    variable line_number  : integer := 0;
+  begin
+    file_open(test_oracle, "../test/tb_neuron_oracle.txt", read_mode);
+		reset_n <= '0', '1' after 5*clock_period;
+		wait for 7*clock_period;
+    while not endfile(test_oracle) loop
+      readline(test_oracle, rline);
+      -- reading bias
+      read(rline, read_bias); read(rline, space);
+      bias <= read_bias;
+      -- reading weights
+      for sz in 0 to input_depth-1 loop
+        for sy in 0 to ker_height-1 loop
+          for sx in 0 to ker_width-1 loop
+            read(rline, read_weights(sz, sy, sx)); read(rline, space);
+            weights(sz, sy, sx) <= read_weights(sz, sy, sx);
+          end loop;
+        end loop;
+      end loop;
+      -- reading inputs 
+      for sz in 0 to input_depth-1 loop
+        for sy in 0 to ker_height-1 loop
+          for sx in 0 to ker_width-1 loop
+            read(rline, read_inputs(sz, sy, sx)); read(rline, space);
+            inputs(sz, sy, sx) <= read_inputs(sz, sy, sx);
+          end loop;
+        end loop;
+      end loop;
+      -- reading output
+      read(rline, read_outputs);
+      -- waiting the computation to complete
+      wait for latency *clock_period;
+      --assert read_outputs = outputs report "Error with input line " & integer'image(line_number) severity failure; 
+      --line_number := line_number + 1;
+    end loop;
+		simulate <= '0';
+		wait;
+  end process;
+end mixed_structural_behavioral;
+ 
