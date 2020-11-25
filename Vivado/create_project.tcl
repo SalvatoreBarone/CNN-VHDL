@@ -240,21 +240,23 @@ set_property -name "verilog_uppercase" -value "0" -objects $obj
 set_property -name "verilog_version" -value "verilog_2001" -objects $obj
 set_property -name "vhdl_version" -value "vhdl_2k" -objects $obj
 
-# Create 'constrs_1' fileset (if not found)
+###############################################################################
+# Constraints
+# Create 'constrs_1' fileset
 if {[string equal [get_filesets -quiet constrs_1] ""]} {
-  create_fileset -constrset constrs_1
+	create_fileset -constrset constrs_1
 }
-
 # Set 'constrs_1' fileset object
 set obj [get_filesets constrs_1]
 
-# Empty (no sources present)
-
-# Set 'constrs_1' fileset properties
+# Add/Import constrs file and set constrs file properties
+set file "[file normalize "${origin_dir}/constraints.xdc"]"
+set file_added [add_files -norecurse -fileset $obj [list $file]]
+set file "${origin_dir}/constraints.xdc"
+set file [file normalize $file]
+set file_obj [get_files -of_objects [get_filesets constrs_1] [list "*$file"]]
+set_property -name "file_type" -value "XDC" -objects $file_obj
 set obj [get_filesets constrs_1]
-set_property -name "constrs_type" -value "XDC" -objects $obj
-set_property -name "name" -value "constrs_1" -objects $obj
-set_property -name "target_constrs_file" -value "" -objects $obj
 
 ###############################################################################
 # Simulation sources
@@ -322,11 +324,7 @@ set_property -name "xsim.simulate.add_positional" -value "0" -objects $obj
 set_property -name "xsim.simulate.custom_tcl" -value "" -objects $obj
 set_property -name "xsim.simulate.log_all_signals" -value "0" -objects $obj
 set_property -name "xsim.simulate.no_quit" -value "0" -objects $obj
-set_property -name "xsim.simulate.runtime" -value "1000ns" -objects $obj
-set_property -name "xsim.simulate.saif" -value "" -objects $obj
 set_property -name "xsim.simulate.saif_all_signals" -value "0" -objects $obj
-set_property -name "xsim.simulate.saif_scope" -value "" -objects $obj
-set_property -name "xsim.simulate.tcl.post" -value "" -objects $obj
 set_property -name "xsim.simulate.wdb" -value "" -objects $obj
 set_property -name "xsim.simulate.xsim.more_options" -value "" -objects $obj
 

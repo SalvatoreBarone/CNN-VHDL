@@ -8,3 +8,7 @@ reports/
 neuron_synth/
 *.o
 
+
+*.pdf
+
+Synthesis/
