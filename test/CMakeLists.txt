@@ -16,7 +16,7 @@ add_testbench_source(tb_multiplier.vhd tb_multiplier)
 add_dependencies(tb_multiplier multiplier)
 
 add_testbench_source(tb_approx_multiplier.vhd tb_approx_multiplier)
-add_dependencies(tb_approx_multiplier multiplier)
+add_dependencies(tb_approx_multiplier debug_func multiplier)
 
 add_testbench_source(tb_sum_reduct.vhd tb_sum_reduct)
 add_dependencies(tb_sum_reduct sum_reduct debug_func)
@@ -29,6 +29,9 @@ add_dependencies(tb_neuron utils neuron)
 
 add_testbench_source(tb_neuron_scomposto.vhd tb_neuron_scomposto)
 add_dependencies(tb_neuron_scomposto utils multiplier generic_register pipe_delay sum_reduct activation)
+
+add_testbench_source(tb_neuron_4dpa.vhd tb_neuron_4dpa)
+add_dependencies(tb_neuron_4dpa debug_func utils multiplier generic_register pipe_delay sum_reduct activation)
 
 add_testbench_source(tb_approx_neuron.vhd tb_approx_neuron)
 add_dependencies(tb_approx_neuron utils neuron)

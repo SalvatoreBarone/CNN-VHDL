@@ -110,9 +110,9 @@ architecture structural of magnitude_selector is
       data_out : out std_logic_vector (data_size-1 downto 0));
   end component;
   component piped_adder is
-  generic (
-    data_size     : natural;
-    approx_degree : natural);
+    generic (
+      data_size     : natural;
+      approx_degree : natural);
     port (
       clock     : in   std_logic;
       reset_n   : in   std_logic;

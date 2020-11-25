@@ -18,17 +18,16 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use std.textio.all;
-use ieee.std_logic_textio.all;
 
 library work;
 use work.utils.all;
 use work.activation_functions.all;
- 
-entity tb_neuron_scomposto is
-end tb_neuron_scomposto;
+use work.debug_func.all;
 
-architecture mixed_structural_behavioral of tb_neuron_scomposto is
+entity tb_neuron_4dpa is
+end tb_neuron_4dpa;
+
+architecture mixed_structural_behavioral of tb_neuron_4dpa is
   ------------------------------------------------------------------------------
   -- Types
   constant data_size : natural := 8;
@@ -136,7 +135,6 @@ architecture mixed_structural_behavioral of tb_neuron_scomposto is
   -- Testbench signals
   constant latency        : natural       := log2(input_depth*ker_height*ker_width)+7;
 	constant clock_period   : time          := 10 ns;
-  file     test_oracle    : text;
 	signal   simulate       : std_logic     := '1';
 
 begin
@@ -191,46 +189,25 @@ begin
 	end process clock_process;
 
   stim_process : process
-    variable rline        : line;
-    variable space        : character;
-    variable read_bias    : std_logic_vector(data_size-1 downto 0); 
-    variable read_weights : data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);
-    variable read_inputs  : data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);
-    variable read_outputs : std_logic_vector(data_size-1 downto 0);
-    variable line_number  : integer := 0;
+    constant test_vectors : integer := 10000;
   begin
-    file_open(test_oracle, "../test/tb_neuron_oracle.txt", read_mode);
 		reset_n <= '0', '1' after 5*clock_period;
 		wait for 7*clock_period;
-    while not endfile(test_oracle) loop
-      readline(test_oracle, rline);
-      -- reading bias
-      read(rline, read_bias); read(rline, space);
-      bias <= read_bias;
-      -- reading weights
+    for test_case in 0 to test_vectors-1 loop
+      bias <= std_logic_vector(to_signed(random(-2**(data_size-1), 2**(data_size-1)-1), data_size));
+      -- random inputs and weights
       for sz in 0 to input_depth-1 loop
         for sy in 0 to ker_height-1 loop
           for sx in 0 to ker_width-1 loop
-            read(rline, read_weights(sz, sy, sx)); read(rline, space);
-            weights(sz, sy, sx) <= read_weights(sz, sy, sx);
+            weights(sz, sy, sx) <= std_logic_vector(to_signed(random(-2**(data_size-1), 2**(data_size-1)-1), data_size));
+            inputs(sz, sy, sx) <= std_logic_vector(to_signed(random(-2**(data_size-1), 2**(data_size-1)-1), data_size));
           end loop;
         end loop;
       end loop;
-      -- reading inputs 
-      for sz in 0 to input_depth-1 loop
-        for sy in 0 to ker_height-1 loop
-          for sx in 0 to ker_width-1 loop
-            read(rline, read_inputs(sz, sy, sx)); read(rline, space);
-            inputs(sz, sy, sx) <= read_inputs(sz, sy, sx);
-          end loop;
-        end loop;
-      end loop;
-      -- reading output
-      read(rline, read_outputs);
       -- waiting the computation to complete
       wait for latency *clock_period;
-      assert read_outputs = outputs report "Error with input line " & integer'image(line_number) severity failure; 
-      line_number := line_number + 1;
+      -- assert read_outputs = outputs report "Error with input line " & integer'image(line_number) severity failure; 
+      -- line_number := line_number + 1;
     end loop;
 		simulate <= '0';
 		wait;
