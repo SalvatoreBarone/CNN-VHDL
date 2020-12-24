@@ -1,3 +1,4 @@
+#!/bin/bash
 for i in $(find Synthesis -name 'utilization_report.txt' | sort); 
 do 
   total_luts=$(grep -e " neuron " $i | sed "s/ \+//g" | cut -d '|' -f4); 
