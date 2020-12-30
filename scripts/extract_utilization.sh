@@ -1,5 +1,5 @@
 #!/bin/bash
-for i in $(find Synthesis -name 'utilization_report.txt' | sort); 
+for i in $(find . -name 'report_utilization.txt' | sort); 
 do 
   total_luts=$(grep -e " neuron " $i | sed "s/ \+//g" | cut -d '|' -f4); 
   logic_luts=$(grep -e " neuron " $i | sed "s/ \+//g" | cut -d '|' -f5); 

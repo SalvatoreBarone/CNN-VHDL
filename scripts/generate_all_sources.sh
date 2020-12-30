@@ -32,7 +32,7 @@ xilinx_vivado=$(realpath $xilinx_vivado)
 destination=$(realpath $destination)
 mkdir -p ${destination}
 
-cp run_all.sh ${destination}
+cp run_all.sh extract_power.sh extract_utilization.sh -t ${destination}
 
 while read line ; 
 do
