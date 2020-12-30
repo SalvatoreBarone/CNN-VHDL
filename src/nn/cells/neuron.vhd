@@ -37,7 +37,7 @@ use work.activation_functions.all;
 entity neuron is
   generic (
     -- Structural properties of convolutional kernel
-    input_depth       : natural      := 120;                                                  -- Number of input channels
+    input_depth       : natural      := 1;                                                    -- Number of input channels
     ker_width         : natural      := 5;                                                    -- Kernel width
     ker_height        : natural      := 5;                                                    -- Kernel height
     act_kind          : activation_t := rectifier;                                            -- type of activation

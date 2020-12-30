@@ -65,33 +65,32 @@ cp -t $destination  ../src/utils.vhd \
                     ../Vivado/tb_neuron_4dpa.vhd \
 
 if [[ ! -z "$data_size" ]]; then
-  sed "s/\s\sconstant data_size\s:\snatural\s:=\s8/  constant data_size : natural := ${data_size}/g" -i $destination/neuron.vhd
-  sed "s/\s\sconstant data_size\s:\snatural\s:=\s8/  constant data_size : natural := ${data_size}/g" -i $destination/tb_neuron_4dpa.vhd
+  sed "s/^\s\sconstant data_size\s:\snatural\s:=\s8/  constant data_size : natural := ${data_size}/g" -i $destination/neuron.vhd
 fi
 
 if [[ ! -z "$input_depth" ]]; then
-  sed "s/\s\s\s\sinput_depth\s\s\s\s\s\s\s:\snatural\s\s\s\s\s\s:=\s120/    input_depth       : natural      := ${input_depth}/g" -i $destination/neuron.vhd
-  sed "s/\s\sconstant\sinput_depth\s\s\s\s\s\s\s:\snatural\s\s\s\s\s\s:=\s1/  constant input_depth : natural := ${input_depth}/g" -i $destination/tb_neuron_4dpa.vhd
+  sed "s/^\s\s\s\sinput_depth\s\s\s\s\s\s\s:\snatural\s\s\s\s\s\s:=\s1;/    input_depth       : natural      := ${input_depth};/g" -i $destination/neuron.vhd
+  sed "s/^\s\sconstant\sinput_depth\s\s\s\s\s\s\s:\snatural\s\s\s\s\s\s\s:=\s1;/  constant input_depth       : natural       := ${input_depth};/g" -i $destination/tb_neuron_4dpa.vhd
 fi
 
 if [[ ! -z "$kernel_width" ]]; then
-  sed "s/\s\s\s\sker_width\s\s\s\s\s\s\s\s\s:\snatural\s\s\s\s\s\s:=\s5/    ker_width         : natural      := ${kernel_width}/g" -i $destination/neuron.vhd
-  sed "s/\s\sconstant\sker_width\s\s\s\s\s\s\s\s\s:\snatural\s\s\s\s\s\s:=\s5/  constant ker_width : natural := ${kernel_width}/g" -i $destination/tb_neuron_4dpa.vhd
+  sed "s/^\s\s\s\sker_width\s\s\s\s\s\s\s\s\s:\snatural\s\s\s\s\s\s:=\s5;/    ker_width         : natural      := ${kernel_width};/g" -i $destination/neuron.vhd
+  sed "s/^\s\sconstant\sker_width\s\s\s\s\s\s\s\s\s:\snatural\s\s\s\s\s\s\s:=\s5;/  constant ker_width         : natural       := ${kernel_width};/g" -i $destination/tb_neuron_4dpa.vhd
 fi
 
 if [[ ! -z "$kernel_height" ]]; then
-  sed "s/\s\s\s\sker_height\s\s\s\s\s\s\s\s:\snatural\s\s\s\s\s\s:=\s5/    ker_height        : natural      := ${kernel_height}/g" -i $destination/neuron.vhd
-  sed "s/\s\sconstant\sker_height\s\s\s\s\s\s\s\s:\snatural\s\s\s\s\s\s:=\s5/  constant ker_height : natural := ${kernel_height}/g" -i $destination/tb_neuron_4dpa.vhd
+  sed "s/^\s\s\s\sker_height\s\s\s\s\s\s\s\s:\snatural\s\s\s\s\s\s:=\s5;/    ker_height        : natural      := ${kernel_height};/g" -i $destination/neuron.vhd
+  sed "s/^\s\sconstant\sker_height\s\s\s\s\s\s\s\s:\snatural\s\s\s\s\s\s\s:=\s5;/  constant ker_height        : natural       := ${kernel_height};/g" -i $destination/tb_neuron_4dpa.vhd
 fi
 
 if [[ ! -z "$add_approx" ]]; then
-  sed "s/\s\s\s\sadd_approx_degree\s:\snatural\s\s\s\s\s\s:=\s0/    add_approx_degree : natural      := ${add_approx}/g" -i $destination/neuron.vhd
-  sed "s/\s\sconstant\sadd_approx_degree\s:\snatural\s\s\s\s\s\s:=\s0/  constant add_approx_degree : natural := ${add_approx}/g" -i $destination/tb_neuron_4dpa.vhd
+  sed "s/^\s\s\s\sadd_approx_degree\s:\snatural\s\s\s\s\s\s:=\s0;/    add_approx_degree : natural      := ${add_approx};/g" -i $destination/neuron.vhd
+  sed "s/^\s\sconstant\sadd_approx_degree\s:\snatural\s\s\s\s\s\s\s:=\s0;/  constant add_approx_degree : natural       := ${add_approx};/g" -i $destination/tb_neuron_4dpa.vhd
 fi
 
 if [[ ! -z "$mul_approx" ]]; then
-  sed "s/\s\s\s\smul_approx_degree\s:\snatural\s\s\s\s\s\s:=\s0/    mul_approx_degree : natural      := ${mul_approx}/g" -i $destination/neuron.vhd
-  sed "s/\s\sconstant\smul_approx_degree\s:\snatural\s\s\s\s\s\s:=\s0/  constant mul_approx_degree : natural := ${mul_approx}/g" -i $destination/tb_neuron_4dpa.vhd
+  sed "s/^\s\s\s\smul_approx_degree\s:\snatural\s\s\s\s\s\s:=\s0);/    mul_approx_degree : natural      := ${mul_approx});/g" -i $destination/neuron.vhd
+  sed "s/^\s\sconstant\smul_approx_degree\s:\snatural\s\s\s\s\s\s\s:=\s0;/  constant mul_approx_degree : natural       := ${mul_approx};/g" -i $destination/tb_neuron_4dpa.vhd
 fi
 
 
@@ -99,3 +98,14 @@ echo "${xilinx_vivado} -mode batch -nojournal -nolog -notrace -source create_pro
 chmod +x ${destination}/run_synth.sh
 echo "${xilinx_vivado} -mode batch -nojournal -nolog -notrace -source run_sim.tcl" > ${destination}/run_sim.sh
 chmod +x ${destination}/run_sim.sh
+
+
+
+
+
+
+
+
+
+
+
