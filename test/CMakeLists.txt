@@ -24,6 +24,12 @@ add_dependencies(tb_sum_reduct sum_reduct debug_func)
 add_testbench_source(tb_activation.vhd tb_activation)
 add_dependencies(tb_activation activation debug_func)
 
+add_testbench_source(tb_weighted_sum.vhd tb_weighted_sum)
+add_dependencies(tb_weighted_sum weighted_sum utils debug_func)
+
+add_testbench_source(tb_approx_weighted_sum.vhd tb_approx_weighted_sum)
+add_dependencies(tb_approx_weighted_sum weighted_sum utils debug_func)
+
 add_testbench_source(tb_neuron.vhd tb_neuron)
 add_dependencies(tb_neuron utils neuron)
 

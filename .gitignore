@@ -12,3 +12,5 @@ neuron_synth/
 *.pdf
 
 Synthesis/
+
+build2/
