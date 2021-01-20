@@ -57,7 +57,9 @@ cp -t $destination  ../src/utils.vhd \
                     ../src/math/wired_shift.vhd \
                     ../src/math/adder.vhd \
                     ../src/math/multiplier.vhd \
+                    ../src/nn/cells/data_types.vhd \
                     ../src/nn/cells/activation.vhd \
+                    ../src/nn/cells/weighted_sum.vhd \
                     ../src/nn/cells/neuron.vhd \
                     ../Vivado/create_project.tcl \
                     ../Vivado/run_sim.tcl \
