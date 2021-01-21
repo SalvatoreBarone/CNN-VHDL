@@ -30,6 +30,9 @@ cmake ..
 make
 ctest --output-on-failure
 ```
+Please, be patient! The execution of the whole test suit will require quite a looooong time!
+
+## Simulation of single entities
 You can also get a full GHW simulation report for a single units by issuing
 ```
 make sim_nameOfTheTbEntity
