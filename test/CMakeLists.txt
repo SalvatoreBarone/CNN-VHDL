@@ -33,6 +33,9 @@ add_dependencies(tb_approx_weighted_sum weighted_sum utils debug_func)
 add_testbench_source(tb_neuron.vhd tb_neuron)
 add_dependencies(tb_neuron utils neuron)
 
+add_testbench_source(tb_neuron_pipelining.vhd tb_neuron_pipelining)
+add_dependencies(tb_neuron_pipelining utils neuron)
+
 add_testbench_source(tb_neuron_scomposto.vhd tb_neuron_scomposto)
 add_dependencies(tb_neuron_scomposto utils multiplier generic_register pipe_delay sum_reduct activation)
 
