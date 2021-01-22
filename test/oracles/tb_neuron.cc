@@ -1,4 +1,4 @@
-// Copyright 2020	Salvatore Barone <salvatore.barone@unina.it>
+// Copyright 2020-2021	Salvatore Barone <salvatore.barone@unina.it>
 // 
 // This file is part of CNN-VHDL
 // 
@@ -19,7 +19,7 @@
 #include <cassert>
 #include <climits>
 #include <inttypes.h>
-
+#include <cstdio>
 typedef enum 
 {
     Logistic,
@@ -65,6 +65,7 @@ DATA_T sat32(SUM_T x, char rs);
 UDATA_T usat32(SUM_T x, char rs);
 DATA_T usat(SUM_T weightedSum, ActivationFunction_T func, bool unsigned_data, int shift);
 void print_binary(int amount, int num);
+void fprint_binary(FILE * stream, int amount, int num);
 
 #define INPUT_DEPTH     1
 #define KER_WIDTH       5
@@ -95,19 +96,32 @@ DATA_T single_neuron(
   int shift);
 
 
-int main()
+int main(int argc, char** argv)
 {
+  if (argc != 4) {
+    return -1;
+    printf("wrong amount of parameters\n");
+  }  
+  FILE *single_neuron_oracle = NULL,
+       *pipelined_neuron_inputs = NULL,
+       *pipelined_neuron_outputs = NULL;
+
+  assert((single_neuron_oracle = fopen(argv[1], "w")) != NULL);
+  assert((pipelined_neuron_inputs = fopen(argv[2], "w")) != NULL);
+  assert((pipelined_neuron_outputs = fopen(argv[3], "w")) != NULL);
   srand(time(NULL));
   DATA_T inputs[INPUT_DEPTH][KER_HEIGHT][KER_WIDTH];
 
   for (int test = 0; test < TEST_VECTORS; test++)
   {
-    print_binary(NB_BITS, biases);
+    fprint_binary(single_neuron_oracle, NB_BITS, biases);
+    fprint_binary(pipelined_neuron_inputs, NB_BITS, biases);
     for (int sz = 0; sz < INPUT_DEPTH; sz++)
       for (int sy = 0; sy < KER_HEIGHT; sy++)
         for (int sx = 0; sx < KER_WIDTH; sx++)
         {
-          printf(" "); print_binary(NB_BITS, weights[sz][sy][sx]);
+          fprintf(single_neuron_oracle, " "); fprint_binary(single_neuron_oracle, NB_BITS, weights[sz][sy][sx]);
+          fprintf(pipelined_neuron_inputs, " "); fprint_binary(pipelined_neuron_inputs, NB_BITS, weights[sz][sy][sx]);
         }
 
     for (int sz = 0; sz < INPUT_DEPTH; sz++)
@@ -115,11 +129,15 @@ int main()
         for (int sx = 0; sx < KER_WIDTH; sx++)
         {
           inputs[sz][sy][sx] = (DATA_T) rand();
-          printf(" "); print_binary(NB_BITS, inputs[sz][sy][sx]);
+          fprintf(single_neuron_oracle, " "); fprint_binary(single_neuron_oracle, NB_BITS, inputs[sz][sy][sx]);
+          fprintf(pipelined_neuron_inputs, " "); fprint_binary(pipelined_neuron_inputs, NB_BITS, inputs[sz][sy][sx]);
         }
 
-    printf(" "); print_binary(NB_BITS, single_neuron(inputs, biases, weights, ACTIVATION, UNSIGNED_DATA, SHIFT_AMOUNT));
-    printf("\n");
+    DATA_T output = single_neuron(inputs, biases, weights, ACTIVATION, UNSIGNED_DATA, SHIFT_AMOUNT);
+    fprintf(single_neuron_oracle, " "); fprint_binary(single_neuron_oracle, NB_BITS, output);
+    fprintf(single_neuron_oracle, "\n");
+    fprint_binary(pipelined_neuron_outputs, NB_BITS, output);
+    fprintf(pipelined_neuron_outputs, "\n");
   }
 }
 
@@ -193,4 +211,10 @@ void print_binary(int amount, int num)
     printf("%d", (num & (1<<i)) ? 1 : 0);
 }
 
+void fprint_binary(FILE* stream, int amount, int num)
+{
+  assert(amount <= 32);
+  for (int i = amount-1; i >= 0; i--)
+    fprintf(stream, "%d", (num & (1<<i)) ? 1 : 0);
+}
 

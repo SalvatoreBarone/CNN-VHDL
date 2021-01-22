@@ -14,7 +14,7 @@ src               : root source directory
   +-- mem         : registers, pipe stages, delay line and so forth 
   +-- nn          : NN stuff
   |   +-- cells   : Fully-configurable neuron implementation
-  |   +-- layers  : Coming soon!
+  |   +-- layers  : Fully configurable, energy efficient implementations of fully-connected and convolutional layers. (coming soon)
   test            : Testbenches for unit-testing
   +-- oracles     : Oracle generators for testbenches (in C++)
 cmake             : Cmake script to build and run unit-testing with GHDL
@@ -22,13 +22,25 @@ CMakeLists.txt    : Root cmake file to build and run unit-testing with GHDL
 ```
 
 ## How to build and run tests
-Warning, unit-testing will require a loooooot of time!
-From the source root directory.
+In order to run unit testing, you must generate oracle files first. Go to /test/oracles and run
+```
+mkdir build && cd build
+cmake ..
+make -j `nproc`
+```
+This will generate oracle files for testbenches. Then, from the repository's root, run.
 ```
 mkdir build && cd build
 cmake ..
 make
+```
+Then
+```
 ctest --output-on-failure
+```
+or
+```
+make test -j `nproc`
 ```
 Please, be patient! The execution of the whole test suit will require quite a looooong time!
 

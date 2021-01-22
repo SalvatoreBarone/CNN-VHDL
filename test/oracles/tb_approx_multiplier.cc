@@ -1,4 +1,4 @@
-// Copyright 2020	Salvatore Barone <salvatore.barone@unina.it>
+// Copyright 2020-2021	Salvatore Barone <salvatore.barone@unina.it>
 // 
 // This file is part of CNN-VHDL
 // 
