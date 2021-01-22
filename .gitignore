@@ -14,3 +14,7 @@ neuron_synth/
 Synthesis/
 
 build2/
+
+*_oracle.txt
+
+test/tb_neuron_pipelining_input.txt
