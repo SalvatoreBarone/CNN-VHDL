@@ -7,14 +7,7 @@ cmake-build-debug
 reports/
 neuron_synth/
 *.o
-
-
 *.pdf
-
 Synthesis/
-
 build2/
-
-*_oracle.txt
-
-test/tb_neuron_pipelining_input.txt
+test/tb_*.txt

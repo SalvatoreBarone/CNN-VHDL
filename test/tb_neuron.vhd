@@ -31,23 +31,23 @@ end tb_neuron;
 
 architecture behavioral of tb_neuron is
   component neuron is
-  generic (
-    -- Structural properties of convolutional kernel
-    input_depth       : natural      := 120;                                                  -- Number of input channels
-    ker_width         : natural      := 5;                                                    -- Kernel width
-    ker_height        : natural      := 5;                                                    -- Kernel height
-    act_kind          : activation_t := rectifier;                                            -- type of activation
-    act_unsigned      : boolean      := true;                                                 -- do the activation work on unsigned data?
-    shift             : integer      := 2;                                                    -- shift amount for the activation function
-    add_approx_degree : natural      := 0;                                                    -- Approximation degree for adders
-    mul_approx_degree : natural      := 0);                                                   -- Approximation degree for multipliers
-  port (
-    clock         : in std_logic;                                                             -- Clock signal
-    reset_n       : in std_logic;                                                             -- Reset signal (active low)
-    inputs        : in data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);  -- input volume
-    bias          : in std_logic_vector(data_size-1 downto 0);                                -- bias (single term) 
-    weights       : in data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);  -- weights volume
-    outputs       : out std_logic_vector(data_size-1 downto 0));                              -- output
+    generic (
+      -- Structural properties of convolutional kernel
+      input_depth       : natural      := 120;                                                  -- Number of input channels
+      ker_width         : natural      := 5;                                                    -- Kernel width
+      ker_height        : natural      := 5;                                                    -- Kernel height
+      act_kind          : activation_t := rectifier;                                            -- type of activation
+      act_unsigned      : boolean      := true;                                                 -- do the activation work on unsigned data?
+      shift             : integer      := 2;                                                    -- shift amount for the activation function
+      add_approx_degree : natural      := 0;                                                    -- Approximation degree for adders
+      mul_approx_degree : natural      := 0);                                                   -- Approximation degree for multipliers
+    port (
+      clock         : in std_logic;                                                             -- Clock signal
+      reset_n       : in std_logic;                                                             -- Reset signal (active low)
+      inputs        : in data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);  -- input volume
+      bias          : in std_logic_vector(data_size-1 downto 0);                                -- bias (single term) 
+      weights       : in data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);  -- weights volume
+      outputs       : out std_logic_vector(data_size-1 downto 0));                              -- output
   end component;
 
   ------------------------------------------------------------------------------
@@ -104,6 +104,7 @@ begin
 		wait for 7*clock_period;
 
     while not endfile(test_oracle) loop
+      report "Processing line " & integer'image(line_number) severity note;
       readline(test_oracle, rline);
       -- reading bias
       read(rline, read_bias); read(rline, space);

@@ -96,16 +96,22 @@ begin
     variable read_bias    : std_logic_vector(data_size-1 downto 0); 
     variable read_weights : data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);
     variable read_inputs  : data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);
+    variable read_outputs : std_logic_vector(data_size-1 downto 0);
+    variable line_number  : integer := 0;
   begin
     file_open(test_inputs, "../test/tb_neuron_pipelining_input.txt", read_mode);
+    file_open(test_oracle, "../test/tb_neuron_pipelining_oracle.txt", read_mode);
 
 		reset_n <= '0', '1' after 5*clock_period;
-    while not endfile(test_inputs) loop
+    while not endfile(test_inputs) and not endfile(test_oracle) loop
+      report "Processing line " & integer'image(line_number) severity note;
       readline(test_inputs, rline);
       -- reading bias
+      report "Reading bias..." severity note;
       read(rline, read_bias); read(rline, space);
       bias <= read_bias;
       -- reading weights
+      report "Reading weights..." severity note;
       for sz in 0 to input_depth-1 loop
         for sy in 0 to ker_height-1 loop
           for sx in 0 to ker_width-1 loop
@@ -115,6 +121,7 @@ begin
         end loop;
       end loop;
       -- reading inputs 
+      report "Reading inputs..." severity note;
       for sz in 0 to input_depth-1 loop
         for sy in 0 to ker_height-1 loop
           for sx in 0 to ker_width-1 loop
@@ -123,31 +130,18 @@ begin
           end loop;
         end loop;
       end loop;
-      wait for clock_period;
-    end loop;
-		wait;
-  end process;
+      wait for latency * clock_period;
 
-  output_process : process
-    variable rline        : line;
-    variable space        : character;
-    variable read_outputs : std_logic_vector(data_size-1 downto 0);
-    variable line_number  : integer := 0;
-  begin
-    file_open(test_oracle, "../test/tb_neuron_pipelining_oracle.txt", read_mode);
-    -- wait for the reset signal to become inactive
-    while reset_n = '0' loop
-    end loop; 
-    -- waiting for the firs computation to complete
-    wait for latency * clock_period;
-    while not endfile(test_oracle) loop
-      readline(test_oracle, rline);
       -- reading output
+      report "Reading output..." severity note;
+      readline(test_oracle, rline);
       read(rline, read_outputs);
+      report "Comparing outputs..." severity note;
       assert read_outputs = outputs report "Error with input line " & integer'image(line_number) severity failure; 
       line_number := line_number + 1;
-      wait for clock_period;
     end loop;
+    file_close(test_inputs);
+    file_close(test_oracle);
 		simulate <= '0';
 		wait;
   end process;

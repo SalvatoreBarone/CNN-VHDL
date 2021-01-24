@@ -50,16 +50,15 @@ architecture dataflow of sum_saturation is
   signal data_in_shf : std_logic_vector(actual_data_size-1 downto 0) := (others => '0');
   signal conditions : std_logic_vector(3 downto 0);
 begin
+  -- y = (x >> rs)
+  shf : wired_shift
+    generic map(actual_data_size, shift)
+    port map (data_in, data_in_shf);
 
   conditions <= data_in_shf(data_in_shf'left) &                                      -- is negative
                 and_reduce(data_in_shf(data_in_shf'left-1 downto final_data_size)) & -- lower bound break 
                 or_reduce( data_in_shf(data_in_shf'left-1 downto final_data_size)) & -- upper bound break
                 data_in_shf(final_data_size-1);                                      -- sign bit
-  
-  -- y = (x >> rs)
-  shf : wired_shift
-    generic map(actual_data_size, shift)
-    port map (data_in, data_in_shf);
 
   -- Compunting saturating-maximum/minimum for signed/unsigned number on final_data_size bits
   int_maximum(int_maximum'left-1 downto 0) <= (others => '1');

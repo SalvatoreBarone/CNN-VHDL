@@ -44,3 +44,19 @@ add_dependencies(tb_neuron_4dpa debug_func utils multiplier generic_register pip
 
 add_testbench_source(tb_approx_neuron.vhd tb_approx_neuron)
 add_dependencies(tb_approx_neuron utils neuron)
+
+
+add_testbench_source(tb_neuromesh_single.vhd tb_neuromesh_single)
+add_dependencies(tb_neuromesh_single neuromesh)
+
+add_testbench_source(tb_neuromesh_single_linear.vhd tb_neuromesh_single_linear)
+add_dependencies(tb_neuromesh_single_linear neuromesh)
+
+add_testbench_source(tb_neuromesh_1i2w_linear.vhd tb_neuromesh_1i2w_linear)
+add_dependencies(tb_neuromesh_1i2w_linear neuromesh)
+
+add_testbench_source(tb_neuromesh_2i1w_linear.vhd tb_neuromesh_2i1w_linear)
+add_dependencies(tb_neuromesh_2i1w_linear neuromesh)
+
+add_testbench_source(tb_neuromesh_lenet5_fc2.vhd tb_neuromesh_lenet5_fc2)
+add_dependencies(tb_neuromesh_lenet5_fc2 neuromesh)
