@@ -45,8 +45,8 @@ add_dependencies(tb_neuron utils neuron)
 add_testbench_source(tb_approx_neuron.vhd tb_approx_neuron)
 add_dependencies(tb_approx_neuron utils neuron)
 
-add_testbench_source(tb_neuromesh_single.vhd tb_neuromesh_single)
-add_dependencies(tb_neuromesh_single neuromesh)
+add_testbench_source(tb_neuromesh_single_rect.vhd tb_neuromesh_single_rect)
+add_dependencies(tb_neuromesh_single_rect neuromesh)
 
 add_testbench_source(tb_neuromesh_single_linear.vhd tb_neuromesh_single_linear)
 add_dependencies(tb_neuromesh_single_linear neuromesh)

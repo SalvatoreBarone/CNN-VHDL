@@ -27,10 +27,10 @@ use work.data_types.all;
 use work.utils.all;
 use work.activation_functions.all;
 
-entity tb_neuromesh_single is
-end tb_neuromesh_single;
+entity tb_neuromesh_single_rect is
+end tb_neuromesh_single_rect;
 
-architecture behavioral of tb_neuromesh_single is
+architecture behavioral of tb_neuromesh_single_rect is
   component neuromesh is
     generic (
       -- Structural properties of the mesh
@@ -107,7 +107,7 @@ begin
     variable read_outputs : data_matrix(0 to parallel_weights_rows-1, 0 to parallel_inputs_cols-1);
     variable line_number  : integer := 0;
   begin
-    file_open(test_oracle, "../test/tb_neuron_oracle.txt", read_mode);
+    file_open(test_oracle, "../test/tb_neuromesh_single_rect_oracle.txt", read_mode);
 		reset_n <= '0', '1' after 5*clock_period;
 		wait for 7*clock_period;
     while not endfile(test_oracle) loop

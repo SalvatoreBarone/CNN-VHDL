@@ -11,6 +11,7 @@ add_executable(tb_weighted_sum                               tb_weighted_sum.cc)
 add_executable(tb_activation                                   tb_activation.cc)
 add_executable(tb_neuron                                           tb_neuron.cc)
 add_executable(tb_neuron_scomposto                       tb_neuron_scomposto.cc)
+add_executable(tb_neuromesh_single_rect             tb_neuromesh_single_rect.cc)
 add_executable(tb_neuromesh_single_linear         tb_neuromesh_single_linear.cc)
 add_executable(tb_neuromesh_1i2w_linear             tb_neuromesh_1i2w_linear.cc)
 add_executable(tb_neuromesh_2i1w_linear             tb_neuromesh_2i1w_linear.cc)
@@ -30,6 +31,7 @@ add_custom_target(
     COMMAND ./tb_activation > ${ORACLES_DESTINATION_DIRECTORY}/tb_activation_oracle.txt 
     COMMAND ./tb_neuron ${ORACLES_DESTINATION_DIRECTORY}/tb_neuron_oracle.txt ${ORACLES_DESTINATION_DIRECTORY}/tb_neuron_pipelining_input.txt ${ORACLES_DESTINATION_DIRECTORY}/tb_neuron_pipelining_oracle.txt 
     COMMAND ./tb_neuron_scomposto > ${ORACLES_DESTINATION_DIRECTORY}/tb_neuron_scomposto_oracle.txt 
+    COMMAND ./tb_neuromesh_single_rect > ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_single_rect_oracle.txt
     COMMAND ./tb_neuromesh_single_linear > ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_single_linear_oracle.txt
     COMMAND ./tb_neuromesh_1i2w_linear > ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_1i2w_linear_oracle.txt
     COMMAND ./tb_neuromesh_2i1w_linear > ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_2i1w_linear_oracle.txt
@@ -38,7 +40,7 @@ add_custom_target(
     COMMAND ./tb_approx_multiplier > ${ORACLES_DESTINATION_DIRECTORY}/tb_approx_multiplier_oracle.txt 
     COMMAND ./tb_approx_weighted_sum > ${ORACLES_DESTINATION_DIRECTORY}/tb_approx_weighted_sum_oracle.txt
     COMMAND ./tb_approx_neuron > ${ORACLES_DESTINATION_DIRECTORY}/tb_approx_neuron_oracle.txt 
-    DEPENDS tb_activation tb_approx_adder tb_approx_multiplier tb_approx_neuron tb_approx_weighted_sum tb_neuron tb_neuron_scomposto tb_weighted_sum tb_wired_shift tb_neuromesh_single_linear tb_neuromesh_1i2w_linear tb_neuromesh_2i1w_linear tb_neuromesh_lenet5_fc2
+    DEPENDS tb_activation tb_approx_adder tb_approx_multiplier tb_approx_neuron tb_approx_weighted_sum tb_neuron tb_neuron_scomposto tb_weighted_sum tb_wired_shift tb_neuromesh_single_rect tb_neuromesh_single_linear tb_neuromesh_1i2w_linear tb_neuromesh_2i1w_linear tb_neuromesh_lenet5_fc2
     VERBATIM
 )
 
