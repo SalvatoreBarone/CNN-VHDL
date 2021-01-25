@@ -34,19 +34,20 @@ architecture behavioral of tb_neuromesh_1i2w_linear is
   component neuromesh is
     generic (
       -- Structural properties of the mesh
-      parallel_weights_rows      : natural;                      -- Number of rows of the mesh, i.e. the amount of neurons processing the same inputs
-      parallel_inputs_cols       : natural;                      -- Number of columns of the mesh, i.e. the amount of neurons using the same weights on different inputs
+      parallel_weights_rows      : natural;            -- Number of rows of the mesh, i.e. the amount of neurons processing the same inputs
+      parallel_inputs_cols       : natural;            -- Number of columns of the mesh, i.e. the amount of neurons using the same weights on different inputs
       -- Structural properties of convolutional kernel
-      input_depth                : natural      := 1;            -- Number of input channels
-      ker_width                  : natural      := 5;            -- Kernel width
-      ker_height                 : natural      := 5;            -- Kernel height
+      unsigned_inputs            : boolean;            -- Is input feature map unsigned?
+      input_depth                : natural;            -- Number of input channels
+      ker_width                  : natural;            -- Kernel width
+      ker_height                 : natural;            -- Kernel height
       -- Properties of the activation function
-      act_kind                   : activation_t := rectifier;    -- type of activation
-      act_unsigned               : boolean      := true;         -- do the activation work on unsigned data?
-      shift                      : integer      := 2;            -- shift amount for the activation function
+      act_kind                   : activation_t;       -- type of activation
+      act_unsigned               : boolean;            -- do the activation work on unsigned data?
+      shift                      : integer;            -- shift amount for the activation function
       -- Approximation degrees (truncation)
-      add_approx_degree          : natural      := 0;            -- Approximation degree for adders
-      mul_approx_degree          : natural      := 0);           -- Approximation degree for multipliers
+      add_approx_degree          : natural;            -- Approximation degree for adders
+      mul_approx_degree          : natural);           -- Approximation degree for multipliers
     port (
       clock   : in  std_logic;                                                                                                -- Clock signal
       reset_n : in  std_logic;                                                                                                -- Reset signal (active low)
@@ -59,6 +60,7 @@ architecture behavioral of tb_neuromesh_1i2w_linear is
   -- Generics
   constant parallel_weights_rows    : natural      := 2;
   constant parallel_inputs_cols     : natural      := 1;
+  constant unsigned_inputs          : boolean      := false;
   constant input_depth              : natural      := 1;
   constant ker_width                : natural      := 5;
   constant ker_height               : natural      := 5;
@@ -84,7 +86,7 @@ architecture behavioral of tb_neuromesh_1i2w_linear is
 	signal   simulate       : std_logic     := '1';
 begin
   uut : neuromesh
-    generic map(parallel_weights_rows, parallel_inputs_cols, input_depth, ker_width, ker_height, act_kind, act_unsigned, shift, add_approx_degree, mul_approx_degree)
+    generic map(parallel_weights_rows, parallel_inputs_cols, unsigned_inputs, input_depth, ker_width, ker_height, act_kind, act_unsigned, shift, add_approx_degree, mul_approx_degree)
     port map(clock, reset_n, weights, bias, inputs, outputs);
 
 	clock_process : process

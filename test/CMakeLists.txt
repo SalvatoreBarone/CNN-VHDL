@@ -33,18 +33,17 @@ add_dependencies(tb_approx_weighted_sum weighted_sum utils debug_func)
 add_testbench_source(tb_neuron.vhd tb_neuron)
 add_dependencies(tb_neuron utils neuron)
 
-add_testbench_source(tb_neuron_pipelining.vhd tb_neuron_pipelining)
-add_dependencies(tb_neuron_pipelining utils neuron)
+#add_testbench_source(tb_neuron_pipelining.vhd tb_neuron_pipelining)
+#add_dependencies(tb_neuron_pipelining utils neuron)
 
-add_testbench_source(tb_neuron_scomposto.vhd tb_neuron_scomposto)
-add_dependencies(tb_neuron_scomposto utils multiplier generic_register pipe_delay sum_reduct activation)
+#add_testbench_source(tb_neuron_scomposto.vhd tb_neuron_scomposto)
+#add_dependencies(tb_neuron_scomposto utils multiplier generic_register pipe_delay sum_reduct activation)
 
-add_testbench_source(tb_neuron_4dpa.vhd tb_neuron_4dpa)
-add_dependencies(tb_neuron_4dpa debug_func utils multiplier generic_register pipe_delay sum_reduct activation)
+#add_testbench_source(tb_neuron_4dpa.vhd tb_neuron_4dpa)
+#add_dependencies(tb_neuron_4dpa debug_func utils multiplier generic_register pipe_delay sum_reduct activation)
 
 add_testbench_source(tb_approx_neuron.vhd tb_approx_neuron)
 add_dependencies(tb_approx_neuron utils neuron)
-
 
 add_testbench_source(tb_neuromesh_single.vhd tb_neuromesh_single)
 add_dependencies(tb_neuromesh_single neuromesh)

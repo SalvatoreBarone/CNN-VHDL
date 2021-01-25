@@ -32,12 +32,14 @@ end tb_weighted_sum;
 architecture behavioral of tb_weighted_sum is
   component weighted_sum is
     generic (
+      unsigned_inputs   : boolean;                                                                              -- Is input feature map unsigned?
       -- Structural properties of convolutional kernel
-      input_depth       : natural      := 1;                                                                    -- Number of input channels
-      ker_width         : natural      := 5;                                                                    -- Kernel width
-      ker_height        : natural      := 5;                                                                    -- Kernel height
-      add_approx_degree : natural      := 0;                                                                    -- Approximation degree for adders
-      mul_approx_degree : natural      := 0);                                                                   -- Approximation degree for multipliers
+      input_depth       : natural;                                                                              -- Number of input channels
+      ker_width         : natural;                                                                              -- Kernel width
+      ker_height        : natural;                                                                              -- Kernel height
+      -- Approx. degree (truncation)
+      add_approx_degree : natural;                                                                              -- Approximation degree for adders
+      mul_approx_degree : natural);                                                                             -- Approximation degree for multipliers
     port (
       clock         : in std_logic;                                                                             -- Clock signal
       reset_n       : in std_logic;                                                                             -- Reset signal (active low)
@@ -49,6 +51,7 @@ architecture behavioral of tb_weighted_sum is
 
   ------------------------------------------------------------------------------
   -- Generics
+  constant unsigned_inputs   : boolean       := true;
   constant input_depth       : natural       := 1;
   constant ker_width         : natural       := 5;
   constant ker_height        : natural       := 5;
@@ -71,7 +74,7 @@ architecture behavioral of tb_weighted_sum is
 	signal   simulate       : std_logic     := '1';
 begin
   uut: weighted_sum
-    generic map (input_depth, ker_width, ker_height, add_approx_degree, mul_approx_degree)
+    generic map (unsigned_inputs, input_depth, ker_width, ker_height, add_approx_degree, mul_approx_degree)
     port map(clock, reset_n, inputs, bias, weights, sum);
 
 	clock_process : process
@@ -98,6 +101,7 @@ begin
 		wait for 7*clock_period;
 
     while not endfile(test_oracle) loop
+      report "Processing line " & integer'image(line_number) severity note;
       readline(test_oracle, rline);
       -- reading bias
       read(rline, read_bias); read(rline, space);

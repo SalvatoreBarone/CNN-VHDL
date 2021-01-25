@@ -75,9 +75,9 @@ void fprint_binary(FILE * stream, int amount, int num);
 #define SHIFT_AMOUNT    2
 #define TEST_VECTORS    100000
 
-static const BDATA_T biases = 0;
+BDATA_T biases = 0;
 
-static const WDATA_T weights[INPUT_DEPTH][KER_HEIGHT][KER_WIDTH] = {
+WDATA_T weights[INPUT_DEPTH][KER_HEIGHT][KER_WIDTH] = {
   {
     {24, -26, -29, -8, -5},
     {-36, -67, -15, 38, 21},
@@ -103,6 +103,7 @@ int main()
 
   for (int test = 0; test < TEST_VECTORS; test++)
   {
+    biases = (BDATA_T) (rand() & 0xff);
     print_binary(NB_BITS, biases);
     for (int sz = 0; sz < INPUT_DEPTH; sz++)
       for (int sy = 0; sy < KER_HEIGHT; sy++)
@@ -115,7 +116,7 @@ int main()
       for (int sy = 0; sy < KER_HEIGHT; sy++)
         for (int sx = 0; sx < KER_WIDTH; sx++)
         {
-          inputs[sz][sy][sx] = (DATA_T) rand();
+          inputs[sz][sy][sx] = (DATA_T) (rand() & 0xff);
           printf(" "); print_binary(NB_BITS, inputs[sz][sy][sx]);
         }
 

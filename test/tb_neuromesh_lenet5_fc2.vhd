@@ -34,19 +34,20 @@ architecture behavioral of tb_neuromesh_lenet5_fc2 is
   component neuromesh is
     generic (
       -- Structural properties of the mesh
-      parallel_weights_rows      : natural;                      -- Number of rows of the mesh, i.e. the amount of neurons processing the same inputs
-      parallel_inputs_cols       : natural;                      -- Number of columns of the mesh, i.e. the amount of neurons using the same weights on different inputs
+      parallel_weights_rows      : natural;            -- Number of rows of the mesh, i.e. the amount of neurons processing the same inputs
+      parallel_inputs_cols       : natural;            -- Number of columns of the mesh, i.e. the amount of neurons using the same weights on different inputs
       -- Structural properties of convolutional kernel
-      input_depth                : natural      := 1;            -- Number of input channels
-      ker_width                  : natural      := 5;            -- Kernel width
-      ker_height                 : natural      := 5;            -- Kernel height
+      unsigned_inputs            : boolean;            -- Is input feature map unsigned?
+      input_depth                : natural;            -- Number of input channels
+      ker_width                  : natural;            -- Kernel width
+      ker_height                 : natural;            -- Kernel height
       -- Properties of the activation function
-      act_kind                   : activation_t := rectifier;    -- type of activation
-      act_unsigned               : boolean      := true;         -- do the activation work on unsigned data?
-      shift                      : integer      := 2;            -- shift amount for the activation function
+      act_kind                   : activation_t;       -- type of activation
+      act_unsigned               : boolean;            -- do the activation work on unsigned data?
+      shift                      : integer;            -- shift amount for the activation function
       -- Approximation degrees (truncation)
-      add_approx_degree          : natural      := 0;            -- Approximation degree for adders
-      mul_approx_degree          : natural      := 0);           -- Approximation degree for multipliers
+      add_approx_degree          : natural;            -- Approximation degree for adders
+      mul_approx_degree          : natural);           -- Approximation degree for multipliers
     port (
       clock   : in  std_logic;                                                                                                -- Clock signal
       reset_n : in  std_logic;                                                                                                -- Reset signal (active low)
@@ -57,23 +58,24 @@ architecture behavioral of tb_neuromesh_lenet5_fc2 is
   end component;
   ------------------------------------------------------------------------------
   -- Generics
-  constant parallel_weights_rows         : natural      := 1;       -- Input volume to be considered
-  constant parallel_inputs_cols         : natural      := 10;      -- Weights volume to be considered (neurons processing the same input)
-  constant input_depth       : natural      := 1;       -- Number of input channels
-  constant ker_width         : natural      := 84;      -- input width
-  constant ker_height        : natural      := 1;       -- input height
-  constant act_kind          : activation_t := linear;  -- type of activation
-  constant act_unsigned      : boolean      := false;    -- do the activation work on unsigned data?
-  constant shift             : integer      := 3;       -- shift amount for the activation function
-  constant add_approx_degree : natural      := 0;       -- Approximation degree for adders
-  constant mul_approx_degree : natural      := 0;       -- Approximation degree for multipliers
+  constant parallel_weights_rows : natural      := 1;       -- Input volume to be considered
+  constant parallel_inputs_cols  : natural      := 10;      -- Weights volume to be considered (neurons processing the same input)
+  constant unsigned_inputs       : boolean      := false;
+  constant input_depth           : natural      := 1;       -- Number of input channels
+  constant ker_width             : natural      := 84;      -- input width
+  constant ker_height            : natural      := 1;       -- input height
+  constant act_kind              : activation_t := linear;  -- type of activation
+  constant act_unsigned          : boolean      := false;    -- do the activation work on unsigned data?
+  constant shift                 : integer      := 3;       -- shift amount for the activation function
+  constant add_approx_degree     : natural      := 0;       -- Approximation degree for adders
+  constant mul_approx_degree     : natural      := 0;       -- Approximation degree for multipliers
   -- Port
-  signal   clock             : std_logic := '0';
-  signal   reset_n           : std_logic := '0';
-  signal   inputs            : data_hypervolume(0 to parallel_inputs_cols-1, 0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1) := (others => (others => (others => (others => (others => '0')))));
-  signal   weights           : data_hypervolume(0 to parallel_weights_rows-1, 0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1) := (others => (others => (others => (others => (others => '0')))));
-  signal   bias              : data_vector(0 to parallel_weights_rows-1) := (others => (others => '0')); 
-  signal   outputs           : data_matrix(0 to parallel_weights_rows-1, 0 to parallel_inputs_cols-1) := (others => (others => (others => '0')));
+  signal   clock                 : std_logic := '0';
+  signal   reset_n               : std_logic := '0';
+  signal   inputs                : data_hypervolume(0 to parallel_inputs_cols-1, 0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1) := (others => (others => (others => (others => (others => '0')))));
+  signal   weights               : data_hypervolume(0 to parallel_weights_rows-1, 0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1) := (others => (others => (others => (others => (others => '0')))));
+  signal   bias                  : data_vector(0 to parallel_weights_rows-1) := (others => (others => '0')); 
+  signal   outputs               : data_matrix(0 to parallel_weights_rows-1, 0 to parallel_inputs_cols-1) := (others => (others => (others => '0')));
   ------------------------------------------------------------------------------
 
   ------------------------------------------------------------------------------
@@ -87,7 +89,7 @@ architecture behavioral of tb_neuromesh_lenet5_fc2 is
 	signal   simulate       : std_logic     := '1';
 begin
   uut : neuromesh
-    generic map(parallel_weights_rows, parallel_inputs_cols, input_depth, ker_width, ker_height, act_kind, act_unsigned, shift, add_approx_degree, mul_approx_degree)
+    generic map(parallel_weights_rows, parallel_inputs_cols, unsigned_inputs, input_depth, ker_width, ker_height, act_kind, act_unsigned, shift, add_approx_degree, mul_approx_degree)
     port map(clock, reset_n, weights, bias, inputs, outputs);
 
 	clock_process : process
