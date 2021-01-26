@@ -14,7 +14,8 @@ src               : root source directory
   +-- mem         : registers, pipe stages, delay line and so forth 
   +-- nn          : NN stuff
   |   +-- cells   : Fully-configurable neuron implementation
-  |   +-- layers  : Fully configurable, energy efficient implementations of fully-connected and convolutional layers.
+  |   +-- layers  : Fully configurable, energy efficient implementations of fully-connected and
+                    convolutional layers.
   test            : Testbenches for unit-testing
   +-- oracles     : Oracle generators for testbenches (in C++)
 cmake             : Cmake script to build and run unit-testing with GHDL
