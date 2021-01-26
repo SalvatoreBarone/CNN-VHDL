@@ -69,7 +69,7 @@ typedef DATA_T WDATA_T;
 #define FC2_ACTIVATION    Linear
 #define FC2_SHIFT         3
 #define FC2_NB_WEIGHTS    (FC2_NB_OUTPUTS*FC2_NB_CHANNELS)
-#define TEST_VECTORS      10000
+#define TEST_VECTORS      1000
 
 DATA_T sat32(SUM_T x, char rs);
 UDATA_T usat32(SUM_T x, char rs);

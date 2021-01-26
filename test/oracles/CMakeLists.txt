@@ -16,6 +16,8 @@ add_executable(tb_neuromesh_single_rect             tb_neuromesh_single_rect.cc)
 add_executable(tb_neuromesh_single_linear         tb_neuromesh_single_linear.cc)
 add_executable(tb_neuromesh_1i2w_linear             tb_neuromesh_1i2w_linear.cc)
 add_executable(tb_neuromesh_2i1w_linear             tb_neuromesh_2i1w_linear.cc)
+add_executable(tb_neuromesh_1i2w_rect                 tb_neuromesh_1i2w_rect.cc)
+add_executable(tb_neuromesh_2i1w_rect                 tb_neuromesh_2i1w_rect.cc)
 add_executable(tb_neuromesh_lenet5_fc2               tb_neuromesh_lenet5_fc2.cc)
 
 add_executable(tb_approx_adder                      trunc.cc tb_approx_adder.cc)
@@ -37,12 +39,14 @@ add_custom_target(
     COMMAND ./tb_neuromesh_single_linear > ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_single_linear_oracle.txt
     COMMAND ./tb_neuromesh_1i2w_linear > ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_1i2w_linear_oracle.txt
     COMMAND ./tb_neuromesh_2i1w_linear > ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_2i1w_linear_oracle.txt
-    COMMAND ./tb_neuromesh_lenet5_fc2 ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_fc2_biases.txt ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_fc2_weights.txt ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_fc2_inputs.txt ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_fc2_outputs.txt
+    COMMAND ./tb_neuromesh_1i2w_rect > ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_1i2w_rect_oracle.txt
+    COMMAND ./tb_neuromesh_2i1w_rect > ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_2i1w_rect_oracle.txt
+    COMMAND ./tb_neuromesh_lenet5_fc2 > ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_oracle.txt
     COMMAND ./tb_approx_adder > ${ORACLES_DESTINATION_DIRECTORY}/tb_approx_adder_oracle.txt 
     COMMAND ./tb_approx_multiplier > ${ORACLES_DESTINATION_DIRECTORY}/tb_approx_multiplier_oracle.txt 
     COMMAND ./tb_approx_weighted_sum > ${ORACLES_DESTINATION_DIRECTORY}/tb_approx_weighted_sum_oracle.txt
     COMMAND ./tb_approx_neuron > ${ORACLES_DESTINATION_DIRECTORY}/tb_approx_neuron_oracle.txt 
-    DEPENDS tb_activation tb_approx_adder tb_approx_multiplier tb_approx_neuron tb_approx_weighted_sum tb_neuron tb_weighted_sum tb_wired_shift tb_neuromesh_single_rect tb_neuromesh_single_linear tb_neuromesh_1i2w_linear tb_neuromesh_2i1w_linear tb_neuromesh_lenet5_fc2
+    DEPENDS tb_activation tb_approx_adder tb_approx_multiplier tb_approx_neuron tb_approx_weighted_sum tb_neuron tb_weighted_sum tb_wired_shift tb_neuromesh_single_rect tb_neuromesh_single_linear tb_neuromesh_1i2w_linear tb_neuromesh_2i1w_linear tb_neuromesh_1i2w_rect tb_neuromesh_2i1w_rect tb_neuromesh_lenet5_fc2
     VERBATIM
 )
 

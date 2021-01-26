@@ -70,7 +70,7 @@ void fprint_binary(FILE * stream, int amount, int num);
 #define INPUT_DEPTH     1
 #define KER_WIDTH       5
 #define KER_HEIGHT      5
-#define ACTIVATION      Linear
+#define ACTIVATION      Rectifier
 #define UNSIGNED_DATA   1
 #define SHIFT_AMOUNT    2
 #define TEST_VECTORS    1000

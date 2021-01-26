@@ -73,7 +73,7 @@ void fprint_binary(FILE * stream, int amount, int num);
 #define ACTIVATION      Linear
 #define UNSIGNED_DATA   1
 #define SHIFT_AMOUNT    2
-#define TEST_VECTORS    100000
+#define TEST_VECTORS    1000
 
 #define WEIGHTS_COLS    1
 #define INPUTS_ROWS     2

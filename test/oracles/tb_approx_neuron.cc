@@ -73,7 +73,7 @@ void print_binary(int amount, int num);
 #define ACTIVATION      Rectifier
 #define UNSIGNED_DATA   1
 #define SHIFT_AMOUNT    2
-#define TEST_VECTORS    100000
+#define TEST_VECTORS    1000
 
 DATA_T single_neuron(
   DATA_T (&inputs)[INPUT_DEPTH][KER_HEIGHT][KER_WIDTH],

@@ -70,13 +70,13 @@ void fprint_binary(FILE * stream, int amount, int num);
 #define INPUT_DEPTH     1
 #define KER_WIDTH       5
 #define KER_HEIGHT      5
-#define ACTIVATION      Linear
+#define ACTIVATION      Rectifier
 #define UNSIGNED_DATA   1
 #define SHIFT_AMOUNT    2
 #define TEST_VECTORS    1000
 
-#define WEIGHTS_COLS    2
-#define INPUTS_ROWS     1
+#define WEIGHTS_COLS    1
+#define INPUTS_ROWS     2
 
 
 DATA_T single_neuron(
@@ -99,7 +99,7 @@ int main()
   {
     for (int w = 0; w < WEIGHTS_COLS; w++) {
       biases[w] = (BDATA_T) (int16_t) (rand() & 0xffff);
-      print_binary(2*NB_BITS, biases[w]); printf(" ");;
+      print_binary(2*NB_BITS, biases[w]); printf(" ");
       for (int sz = 0; sz < INPUT_DEPTH; sz++)
         for (int sy = 0; sy < KER_HEIGHT; sy++)
           for (int sx = 0; sx < KER_WIDTH; sx++)
@@ -121,7 +121,7 @@ int main()
 
     for (int i = 0; i < INPUTS_ROWS; i++)
       for (int w = 0; w < WEIGHTS_COLS; w++) { 
-        print_binary(NB_BITS, (DATA_T) single_neuron(inputs[i], biases[w], weights[w], ACTIVATION, UNSIGNED_DATA, SHIFT_AMOUNT)); printf(" "); 
+        print_binary(NB_BITS, single_neuron(inputs[i], biases[w], weights[w], ACTIVATION, UNSIGNED_DATA, SHIFT_AMOUNT)); printf(" "); 
       }
     printf("\n");
   }
