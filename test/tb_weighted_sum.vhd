@@ -32,21 +32,21 @@ end tb_weighted_sum;
 architecture behavioral of tb_weighted_sum is
   component weighted_sum is
     generic (
-      unsigned_inputs   : boolean;                                                                              -- Is input feature map unsigned?
+      unsigned_inputs   : boolean;                                                                                  -- Is input feature map unsigned?
       -- Structural properties of convolutional kernel
-      input_depth       : natural;                                                                              -- Number of input channels
-      ker_width         : natural;                                                                              -- Kernel width
-      ker_height        : natural;                                                                              -- Kernel height
+      input_depth       : natural;                                                                                  -- Number of input channels
+      ker_width         : natural;                                                                                  -- Kernel width
+      ker_height        : natural;                                                                                  -- Kernel height
       -- Approx. degree (truncation)
-      add_approx_degree : natural;                                                                              -- Approximation degree for adders
-      mul_approx_degree : natural);                                                                             -- Approximation degree for multipliers
+      add_approx_degree : natural;                                                                                  -- Approximation degree for adders
+      mul_approx_degree : natural);                                                                                 -- Approximation degree for multipliers
     port (
-      clock         : in std_logic;                                                                             -- Clock signal
-      reset_n       : in std_logic;                                                                             -- Reset signal (active low)
-      inputs        : in data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);                  -- input volume
-      bias          : in std_logic_vector(data_size-1 downto 0);                                                -- bias (single term) 
-      weights       : in data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);                  -- weights volume
-      sum           : out std_logic_vector(2*(data_size+1)+log2(input_depth*ker_height*ker_width+1) downto 0)); -- output
+      clock             : in std_logic;                                                                             -- Clock signal
+      reset_n           : in std_logic;                                                                             -- Reset signal (active low)
+      inputs            : in data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);                  -- input volume (signed integer, internally converted to unsigned wheter unsigned_inputs is true)
+      bias              : in std_logic_vector(2*data_size-1 downto 0);                                              -- bias (single term, signed integer) 
+      weights           : in data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);                  -- weights volume (signed integer)
+      sum               : out std_logic_vector(2*(data_size+1)+log2(input_depth*ker_height*ker_width+1) downto 0)); -- output (signed integer)
   end component;
 
   ------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ architecture behavioral of tb_weighted_sum is
   signal   clock             : std_logic := '0';
   signal   reset_n           : std_logic := '0';
   signal   inputs            : data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1) := (others => (others => (others => (others => '0'))));
-  signal   bias              : std_logic_vector(data_size-1 downto 0) := (others => '0'); 
+  signal   bias              : std_logic_vector(2*data_size-1 downto 0) := (others => '0'); 
   signal   weights           : data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1) := (others => (others => (others => (others => '0'))));
   signal   sum               : std_logic_vector(2*(data_size+1)+log2(input_depth*ker_height*ker_width+1) downto 0) := (others => '0');
   ------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ begin
   stim_process : process
     variable rline        : line;
     variable space        : character;
-    variable read_bias    : std_logic_vector(data_size-1 downto 0); 
+    variable read_bias    : std_logic_vector(2*data_size-1 downto 0); 
     variable read_weights : data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);
     variable read_inputs  : data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);
     variable read_outputs : std_logic_vector(2*(data_size+1)+log2(input_depth*ker_height*ker_width+1) downto 0);

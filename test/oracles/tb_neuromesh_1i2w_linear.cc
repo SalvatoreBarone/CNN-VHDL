@@ -73,7 +73,7 @@ void fprint_binary(FILE * stream, int amount, int num);
 #define ACTIVATION      Linear
 #define UNSIGNED_DATA   1
 #define SHIFT_AMOUNT    2
-#define TEST_VECTORS    1000
+#define TEST_VECTORS    100000
 
 #define WEIGHTS_COLS    2
 #define INPUTS_ROWS     1
@@ -98,8 +98,8 @@ int main()
   for (int test = 0; test < TEST_VECTORS; test++)
   {
     for (int w = 0; w < WEIGHTS_COLS; w++) {
-      biases[w] = (BDATA_T) rand();
-      print_binary(NB_BITS, biases[w]); printf(" ");;
+      biases[w] = (BDATA_T) (int16_t) (rand() & 0xffff);
+      print_binary(2*NB_BITS, biases[w]); printf(" ");;
       for (int sz = 0; sz < INPUT_DEPTH; sz++)
         for (int sy = 0; sy < KER_HEIGHT; sy++)
           for (int sx = 0; sx < KER_WIDTH; sx++)

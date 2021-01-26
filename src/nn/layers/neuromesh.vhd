@@ -67,7 +67,7 @@ entity neuromesh is
     clock   : in  std_logic;                                                                                                -- Clock signal
     reset_n : in  std_logic;                                                                                                -- Reset signal (active low)
     weights : in  data_hypervolume(0 to parallel_weights_rows-1, 0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);  -- weights volume
-    bias    : in  data_vector(0 to parallel_weights_rows-1);                                                                -- biases (one bias for each one of the weight volumes) 
+    bias    : in  bias_vector(0 to parallel_weights_rows-1);                                                                -- biases (one bias for each one of the weight volumes) 
     inputs  : in  data_hypervolume(0 to parallel_inputs_cols-1, 0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);   -- input volume
     outputs : out data_matrix(0 to parallel_weights_rows-1, 0 to parallel_inputs_cols-1));                                  -- output
 end neuromesh;
@@ -90,10 +90,10 @@ architecture structural of neuromesh is
     port (
       clock   : in std_logic;                                                             -- Clock signal
       reset_n : in std_logic;                                                             -- Reset signal (active low)
-      inputs  : in data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);  -- input volume
-      bias    : in std_logic_vector(data_size-1 downto 0);                                -- bias (single term) 
-      weights : in data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);  -- weights volume
-      outputs : out std_logic_vector(data_size-1 downto 0));                              -- output
+      inputs  : in data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);  -- input volume (signed integer, internally converted to unsigned wheter unsigned_inputs is true)
+      bias    : in std_logic_vector(2*data_size-1 downto 0);                              -- bias (single term, signed integer) 
+      weights : in data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);  -- weights volume (signed integer)
+      outputs : out std_logic_vector(data_size-1 downto 0));                              -- output (signed integer)
   end component;
   type internal_hypervolume is array(natural range <>) of data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);
   signal weights_hypervolume : internal_hypervolume(0 to parallel_weights_rows-1);

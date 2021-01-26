@@ -14,7 +14,7 @@ src               : root source directory
   +-- mem         : registers, pipe stages, delay line and so forth 
   +-- nn          : NN stuff
   |   +-- cells   : Fully-configurable neuron implementation
-  |   +-- layers  : Fully configurable, energy efficient implementations of fully-connected and convolutional layers. (coming soon)
+  |   +-- layers  : Fully configurable, energy efficient implementations of fully-connected and convolutional layers.
   test            : Testbenches for unit-testing
   +-- oracles     : Oracle generators for testbenches (in C++)
 cmake             : Cmake script to build and run unit-testing with GHDL
@@ -40,7 +40,7 @@ ctest --output-on-failure
 ```
 or
 ```
-make test -j `nproc`
+make test 
 ```
 Please, be patient! The execution of the whole test suit will require quite a looooong time!
 

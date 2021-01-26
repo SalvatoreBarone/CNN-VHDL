@@ -75,18 +75,6 @@ void fprint_binary(FILE * stream, int amount, int num);
 #define SHIFT_AMOUNT    2
 #define TEST_VECTORS    100000
 
-BDATA_T biases = 0;
-
-WDATA_T weights[INPUT_DEPTH][KER_HEIGHT][KER_WIDTH] = {
-  {
-    {24, -26, -29, -8, -5},
-    {-36, -67, -15, 38, 21},
-    {-27, 13, 90, 63, 15},
-    {10, 58, 38, -48, -40},
-    {4, 10, -41, -65, -20}
-  }
-};
-
 DATA_T single_neuron(
   DATA_T (&inputs)[INPUT_DEPTH][KER_HEIGHT][KER_WIDTH],
   const BDATA_T bias,
@@ -99,16 +87,19 @@ DATA_T single_neuron(
 int main()
 {
   srand(time(NULL));
+  BDATA_T biases = 0;
+  WDATA_T weights[INPUT_DEPTH][KER_HEIGHT][KER_WIDTH];
   DATA_T inputs[INPUT_DEPTH][KER_HEIGHT][KER_WIDTH];
 
   for (int test = 0; test < TEST_VECTORS; test++)
   {
-    biases = (BDATA_T) (rand() & 0xff);
-    print_binary(NB_BITS, biases);
+    biases = (BDATA_T) (int16_t) (rand() & 0xffff);
+    print_binary(2*NB_BITS, biases);
     for (int sz = 0; sz < INPUT_DEPTH; sz++)
       for (int sy = 0; sy < KER_HEIGHT; sy++)
         for (int sx = 0; sx < KER_WIDTH; sx++)
         {
+          weights[sz][sy][sx] = (WDATA_T) rand();
           printf(" "); print_binary(NB_BITS, weights[sz][sy][sx]);
         }
 
@@ -116,7 +107,7 @@ int main()
       for (int sy = 0; sy < KER_HEIGHT; sy++)
         for (int sx = 0; sx < KER_WIDTH; sx++)
         {
-          inputs[sz][sy][sx] = (DATA_T) (rand() & 0xff);
+          inputs[sz][sy][sx] = (DATA_T) rand();
           printf(" "); print_binary(NB_BITS, inputs[sz][sy][sx]);
         }
 
@@ -144,6 +135,7 @@ DATA_T single_neuron(
         weightedSum = weightedSum + prod;
       }
   }
+  printf(" "); print_binary(32, weightedSum);
   return usat(weightedSum, activation, unsigned_data, shift);
 }
 

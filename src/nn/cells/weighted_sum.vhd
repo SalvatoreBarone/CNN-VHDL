@@ -25,21 +25,21 @@ use work.data_types.all;
 
 entity weighted_sum is
   generic (
-    unsigned_inputs   : boolean;                                                                              -- Is input feature map unsigned?
+    unsigned_inputs   : boolean;                                                                                  -- Is input feature map unsigned?
     -- Structural properties of convolutional kernel
-    input_depth       : natural;                                                                              -- Number of input channels
-    ker_width         : natural;                                                                              -- Kernel width
-    ker_height        : natural;                                                                              -- Kernel height
+    input_depth       : natural;                                                                                  -- Number of input channels
+    ker_width         : natural;                                                                                  -- Kernel width
+    ker_height        : natural;                                                                                  -- Kernel height
     -- Approx. degree (truncation)
-    add_approx_degree : natural;                                                                              -- Approximation degree for adders
-    mul_approx_degree : natural);                                                                             -- Approximation degree for multipliers
+    add_approx_degree : natural;                                                                                  -- Approximation degree for adders
+    mul_approx_degree : natural);                                                                                 -- Approximation degree for multipliers
   port (
-    clock         : in std_logic;                                                                             -- Clock signal
-    reset_n       : in std_logic;                                                                             -- Reset signal (active low)
-    inputs        : in data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);                  -- input volume
-    bias          : in std_logic_vector(data_size-1 downto 0);                                                -- bias (single term) 
-    weights       : in data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);                  -- weights volume
-    sum           : out std_logic_vector(2*(data_size+1)+log2(input_depth*ker_height*ker_width+1) downto 0)); -- output
+    clock             : in std_logic;                                                                             -- Clock signal
+    reset_n           : in std_logic;                                                                             -- Reset signal (active low)
+    inputs            : in data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);                  -- input volume (signed integer, internally converted to unsigned wheter unsigned_inputs is true)
+    bias              : in std_logic_vector(2*data_size-1 downto 0);                                              -- bias (single term, signed integer) 
+    weights           : in data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);                  -- weights volume (signed integer)
+    sum               : out std_logic_vector(2*(data_size+1)+log2(input_depth*ker_height*ker_width+1) downto 0)); -- output (signed integer)
 end weighted_sum;
 
 architecture structural of weighted_sum is
@@ -103,8 +103,8 @@ architecture structural of weighted_sum is
   signal uns_inputs           : iinputs_t(num_terms-1 downto 0) := (others => (others => '0'));                           -- inputs (unsigned)
   signal pprod_unbuf          : pprod_t(num_terms-1 downto 0) := (others => (others => '0'));                             -- partial products terms as they comes from multipliers
   signal pprod                : pprod_t(num_terms-1 downto 0) := (others => (others => '0'));                             -- partial product terms after the pipe stage  
-  signal bias_unbuff          : std_logic_vector(pprod_size-1 downto 0) := (others => '0');                               -- bias (sign-extended, in order to match partial products width)
-  signal bias_buff            : std_logic_vector(pprod_size-1 downto 0) := (others => '0');                               -- bias (buffered so it traverses the same amunt of pipe stages)
+  signal bias_buff            : std_logic_vector(2*data_size-1 downto 0) := (others => '0');                               -- bias (buffered so it traverses the same amunt of pipe stages)
+  signal ext_bias             : std_logic_vector(pprod_size -1 downto 0) := (others => '0');
 begin
   -- inputs and weights assignment
   w_i_loop_z : for sz in 0 to input_depth-1 generate
@@ -120,24 +120,21 @@ begin
       end generate;
     end generate;
   end generate;  
-  -- bias sign-extension
-  bias_unbuff(bias'range) <= bias;
-  with bias(bias'left) select
-    bias_unbuff(bias_unbuff'left downto bias'left+1) <= (others => '1') when '1', (others => '0') when others;
-
   -- Bias buffering (so it traverses tha same amount of pipe stages)
   bias_buf : pipe_delay
-    generic map (pprod_size, 3)
-    port map(clock, reset_n, bias_unbuff, bias_buff);
-  -- Synapse   
+    generic map (2*data_size, 3)
+    port map(clock, reset_n, bias, bias_buff);
+  -- Bias sign extension
+  ext_bias(bias'range) <= bias_buff;
+  with bias_buff(bias_buff'left) select
+    ext_bias(ext_bias'left downto bias_buff'left+1) <= (others => '1') when '1', (others => '0') when others;
   -- Partial product computation
   pprod_loop : for i in 0 to num_terms-1 generate
         mul_w_i : multiplier generic map(internal_data_size, mul_approx_degree) port map (clock, reset_n, ext_weights(i), uns_inputs(i), pprod_unbuf(i));
         buf_pprodd : generic_register generic map(pprod_size) port map(clock, reset_n, pprod_unbuf(i), '1', pprod(i));
   end generate;
-  -- Neuron body
   -- Terms concatenation
-  pprod_concat(bias_buff'range) <= bias_buff;
+  pprod_concat(ext_bias'range) <= ext_bias;
   concat_terms: for i in num_terms-1 downto 0 generate
     pprod_concat(pprod_concat'left-(i*pprod_size) downto pprod_concat'left-((i+1)*pprod_size)+1) <= pprod(i);
   end generate;

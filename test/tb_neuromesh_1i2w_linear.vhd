@@ -52,7 +52,7 @@ architecture behavioral of tb_neuromesh_1i2w_linear is
       clock   : in  std_logic;                                                                                                -- Clock signal
       reset_n : in  std_logic;                                                                                                -- Reset signal (active low)
       weights : in  data_hypervolume(0 to parallel_weights_rows-1, 0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);  -- weights volume
-      bias    : in  data_vector(0 to parallel_weights_rows-1);                                                                -- biases (one bias for each one of the weight volumes) 
+      bias    : in  bias_vector(0 to parallel_weights_rows-1);                                                                -- biases (one bias for each one of the weight volumes) 
       inputs  : in  data_hypervolume(0 to parallel_inputs_cols-1, 0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);   -- input volume
       outputs : out data_matrix(0 to parallel_weights_rows-1, 0 to parallel_inputs_cols-1));                                  -- output
   end component;
@@ -60,7 +60,7 @@ architecture behavioral of tb_neuromesh_1i2w_linear is
   -- Generics
   constant parallel_weights_rows    : natural      := 2;
   constant parallel_inputs_cols     : natural      := 1;
-  constant unsigned_inputs          : boolean      := false;
+  constant unsigned_inputs          : boolean      := true;
   constant input_depth              : natural      := 1;
   constant ker_width                : natural      := 5;
   constant ker_height               : natural      := 5;
@@ -74,7 +74,7 @@ architecture behavioral of tb_neuromesh_1i2w_linear is
   signal   reset_n           : std_logic := '0';
   signal   inputs            : data_hypervolume(0 to parallel_inputs_cols-1, 0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1) := (others => (others => (others => (others => (others => '0')))));
   signal   weights           : data_hypervolume(0 to parallel_weights_rows-1, 0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1) := (others => (others => (others => (others => (others => '0')))));
-  signal   bias              : data_vector(0 to parallel_weights_rows-1) := (others => (others => '0')); 
+  signal   bias              : bias_vector(0 to parallel_weights_rows-1) := (others => (others => '0')); 
   signal   outputs           : data_matrix(0 to parallel_weights_rows-1, 0 to parallel_inputs_cols-1) := (others => (others => (others => '0')));
   ------------------------------------------------------------------------------
 
@@ -101,7 +101,7 @@ begin
   stim_process : process
     variable rline        : line;
     variable space        : character;
-    variable read_bias    : data_vector(0 to parallel_weights_rows-1); 
+    variable read_bias    : bias_vector(0 to parallel_weights_rows-1); 
     variable read_weights : data_hypervolume(0 to parallel_weights_rows-1, 0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);
     variable read_inputs  : data_hypervolume(0 to parallel_inputs_cols-1, 0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);
     variable read_outputs : data_matrix(0 to parallel_weights_rows-1, 0 to parallel_inputs_cols-1);
@@ -113,7 +113,6 @@ begin
     while not endfile(test_oracle) loop
       report "Processing line " & integer'image(line_number) severity note;
       readline(test_oracle, rline);
-      report "Reading biases and weights..." severity note;
       for w in 0 to parallel_weights_rows-1 loop
         -- reading bias
         read(rline, read_bias(w)); read(rline, space);
@@ -129,7 +128,6 @@ begin
       bias <= read_bias;
       weights <= read_weights;
       -- reading inputs 
-      report "Reading inputs..." severity note;
       for i in 0 to parallel_inputs_cols-1 loop
         for sz in 0 to input_depth-1 loop
           for sy in 0 to ker_height-1 loop
@@ -143,14 +141,11 @@ begin
       -- reading output
       -- waiting the computation to complete
       wait for latency * clock_period;
-      report "Reading expected outputs" severity note;
       for w in 0 to parallel_weights_rows-1 loop
         for i in 0 to parallel_inputs_cols-1 loop
           read(rline, read_outputs(w,i));
-          report "outputs(" & integer'image(w) & "," & integer'image(i) & "): " & vec_image(outputs(w,i)) & "     read_outputs(" & integer'image(w) & "," & integer'image(i) & "): " & vec_image(read_outputs(w,i)) severity note;
         end loop;
       end loop;
-      report "Comparing outputs..." severity note;
       for w in 0 to parallel_weights_rows-1 loop
         for i in 0 to parallel_inputs_cols-1 loop
           assert read_outputs(w,i) = outputs(w,i) report "Error with input line " & integer'image(line_number) severity failure; 

@@ -69,7 +69,7 @@ typedef DATA_T WDATA_T;
 #define FC2_ACTIVATION    Linear
 #define FC2_SHIFT         3
 #define FC2_NB_WEIGHTS    (FC2_NB_OUTPUTS*FC2_NB_CHANNELS)
-#define TEST_VECTORS      1000
+#define TEST_VECTORS      10000
 
 DATA_T sat32(SUM_T x, char rs);
 UDATA_T usat32(SUM_T x, char rs);
@@ -99,55 +99,28 @@ static const WDATA_T fc2_weights[FC2_NB_OUTPUTS][FC2_NB_CHANNELS] =
 
 int main(int argc, char** argv)
 {
-  if (argc != 5) {
-    return -1;
-    printf("wrong amount of parameters\n");
-  }  
-  FILE *test_bias    = NULL,
-       *test_weights = NULL,
-       *test_inputs  = NULL,
-       *test_outputs = NULL;
-
-  assert((test_bias    = fopen(argv[1], "w")) != NULL);
-  for (int i = 0; i < FC2_NB_OUTPUTS; i++)
-  {
-    fprint_binary(test_bias, NB_BITS, fc2_biases[i]);
-    fprintf(test_bias, "\n");
-  }
-  fclose(test_bias);
-
-  assert((test_weights = fopen(argv[2], "w")) != NULL);
-  for (int i = 0; i < FC2_NB_OUTPUTS; i++) {
-    for (int j = 0; j < FC2_NB_CHANNELS; j++) {
-      fprint_binary(test_weights, NB_BITS, fc2_weights[i][j]);
-      fprintf(test_weights, " ");
-    }
-  }
-  fprintf(test_weights, "\n");
-  fclose(test_weights);
-
+  srand(time(NULL));
   DATA_T inputs[FC2_NB_CHANNELS];
   DATA_T outputs[FC2_NB_OUTPUTS];
-
-  srand(time(NULL));
-  assert((test_inputs  = fopen(argv[3], "w")) != NULL);
-  assert((test_outputs = fopen(argv[4], "w")) != NULL);
   for (int test = 0; test < TEST_VECTORS; test++)
   {
+    for (int i = 0; i < FC2_NB_OUTPUTS; i++) {
+      print_binary(2*NB_BITS, fc2_biases[i]); printf(" ");;
+      for (int j = 0; j < FC2_NB_CHANNELS; j++) { 
+        print_binary(NB_BITS, fc2_weights[i][j]); printf(" "); 
+      }
+    }
     memset(inputs, 0, sizeof(DATA_T) * FC2_NB_CHANNELS);
     for (int i = 0; i < FC2_NB_CHANNELS; i++) {
       inputs[i] = (DATA_T) rand();
-      fprint_binary(test_inputs, NB_BITS, inputs[i]);
-      fprintf(test_inputs, " "); 
+      print_binary(NB_BITS, inputs[i]); printf(" ");
     }
-    fprintf(test_inputs, "\n"); 
     memset(outputs, 0, sizeof(DATA_T) * FC2_NB_OUTPUTS);
     fccell_upropagate(inputs, outputs, fc2_biases, fc2_weights);
     for (int i = 0; i < FC2_NB_OUTPUTS; i++) {
-      fprint_binary(test_outputs, NB_BITS, outputs[i]);
-      fprintf(test_outputs, " "); 
+      print_binary(NB_BITS, outputs[i]); printf(" "); 
     }
-    fprintf(test_outputs, "\n"); 
+    printf("\n");
   }
 }
 

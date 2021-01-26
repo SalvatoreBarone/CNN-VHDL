@@ -19,7 +19,7 @@
 #include <cassert>
 #include <climits>
 #include <inttypes.h>
-#include <cstdio>
+#include <cmath>
 typedef enum 
 {
     Logistic,
@@ -65,7 +65,6 @@ DATA_T sat32(SUM_T x, char rs);
 UDATA_T usat32(SUM_T x, char rs);
 DATA_T usat(SUM_T weightedSum, ActivationFunction_T func, bool unsigned_data, int shift);
 void print_binary(int amount, int num);
-void fprint_binary(FILE * stream, int amount, int num);
 
 #define INPUT_DEPTH     1
 #define KER_WIDTH       5
@@ -75,19 +74,7 @@ void fprint_binary(FILE * stream, int amount, int num);
 #define SHIFT_AMOUNT    2
 #define TEST_VECTORS    100000
 
-static const BDATA_T biases = 0;
-
-static const WDATA_T weights[INPUT_DEPTH][KER_HEIGHT][KER_WIDTH] = {
-  {
-    {24, -26, -29, -8, -5},
-    {-36, -67, -15, 38, 21},
-    {-27, 13, 90, 63, 15},
-    {10, 58, 38, -48, -40},
-    {4, 10, -41, -65, -20}
-  }
-};
-
-DATA_T single_neuron(
+SUM_T single_neuron(
   DATA_T (&inputs)[INPUT_DEPTH][KER_HEIGHT][KER_WIDTH],
   const BDATA_T bias,
   const WDATA_T (&weights)[INPUT_DEPTH][KER_HEIGHT][KER_WIDTH],
@@ -96,32 +83,24 @@ DATA_T single_neuron(
   int shift);
 
 
-int main(int argc, char** argv)
+int main()
 {
-  if (argc != 4) {
-    return -1;
-    printf("wrong amount of parameters\n");
-  }  
-  FILE *single_neuron_oracle = NULL,
-       *pipelined_neuron_inputs = NULL,
-       *pipelined_neuron_outputs = NULL;
-
-  assert((single_neuron_oracle = fopen(argv[1], "w")) != NULL);
-  assert((pipelined_neuron_inputs = fopen(argv[2], "w")) != NULL);
-  assert((pipelined_neuron_outputs = fopen(argv[3], "w")) != NULL);
   srand(time(NULL));
+  BDATA_T biases = 0;
+  WDATA_T weights[INPUT_DEPTH][KER_HEIGHT][KER_WIDTH];
   DATA_T inputs[INPUT_DEPTH][KER_HEIGHT][KER_WIDTH];
+  const int sum_bits = 2*(NB_BITS+1)+log10(INPUT_DEPTH*KER_WIDTH*KER_HEIGHT+1)/log10(2)+1;
 
   for (int test = 0; test < TEST_VECTORS; test++)
   {
-    fprint_binary(single_neuron_oracle, NB_BITS, biases);
-    fprint_binary(pipelined_neuron_inputs, NB_BITS, biases);
+    biases = (BDATA_T) (int16_t) (rand() & 0xffff);
+    print_binary(2*NB_BITS, biases);
     for (int sz = 0; sz < INPUT_DEPTH; sz++)
       for (int sy = 0; sy < KER_HEIGHT; sy++)
         for (int sx = 0; sx < KER_WIDTH; sx++)
         {
-          fprintf(single_neuron_oracle, " "); fprint_binary(single_neuron_oracle, NB_BITS, weights[sz][sy][sx]);
-          fprintf(pipelined_neuron_inputs, " "); fprint_binary(pipelined_neuron_inputs, NB_BITS, weights[sz][sy][sx]);
+          weights[sz][sy][sx] = (WDATA_T) rand();
+          printf(" "); print_binary(NB_BITS, weights[sz][sy][sx]);
         }
 
     for (int sz = 0; sz < INPUT_DEPTH; sz++)
@@ -129,19 +108,16 @@ int main(int argc, char** argv)
         for (int sx = 0; sx < KER_WIDTH; sx++)
         {
           inputs[sz][sy][sx] = (DATA_T) rand();
-          fprintf(single_neuron_oracle, " "); fprint_binary(single_neuron_oracle, NB_BITS, inputs[sz][sy][sx]);
-          fprintf(pipelined_neuron_inputs, " "); fprint_binary(pipelined_neuron_inputs, NB_BITS, inputs[sz][sy][sx]);
+          printf(" "); print_binary(NB_BITS, inputs[sz][sy][sx]);
         }
 
     DATA_T output = single_neuron(inputs, biases, weights, ACTIVATION, UNSIGNED_DATA, SHIFT_AMOUNT);
-    fprintf(single_neuron_oracle, " "); fprint_binary(single_neuron_oracle, NB_BITS, output);
-    fprintf(single_neuron_oracle, "\n");
-    fprint_binary(pipelined_neuron_outputs, NB_BITS, output);
-    fprintf(pipelined_neuron_outputs, "\n");
+    printf(" "); print_binary(NB_BITS, output);
+    printf("\n");
   }
 }
 
-DATA_T single_neuron(
+SUM_T single_neuron(
   DATA_T (&inputs)[INPUT_DEPTH][KER_HEIGHT][KER_WIDTH],
   const BDATA_T bias,
   const WDATA_T (&weights)[INPUT_DEPTH][KER_HEIGHT][KER_WIDTH],
@@ -159,6 +135,7 @@ DATA_T single_neuron(
         weightedSum = weightedSum + prod;
       }
   }
+  printf(" "); print_binary(32, weightedSum);
   return usat(weightedSum, activation, unsigned_data, shift);
 }
 
@@ -211,10 +188,4 @@ void print_binary(int amount, int num)
     printf("%d", (num & (1<<i)) ? 1 : 0);
 }
 
-void fprint_binary(FILE* stream, int amount, int num)
-{
-  assert(amount <= 32);
-  for (int i = amount-1; i >= 0; i--)
-    fprintf(stream, "%d", (num & (1<<i)) ? 1 : 0);
-}
 

@@ -47,10 +47,10 @@ architecture behavioral of tb_approx_neuron is
     port (
       clock   : in std_logic;                                                             -- Clock signal
       reset_n : in std_logic;                                                             -- Reset signal (active low)
-      inputs  : in data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);  -- input volume
-      bias    : in std_logic_vector(data_size-1 downto 0);                                -- bias (single term) 
-      weights : in data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);  -- weights volume
-      outputs : out std_logic_vector(data_size-1 downto 0));                              -- output
+      inputs  : in data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);  -- input volume (signed integer, internally converted to unsigned wheter unsigned_inputs is true)
+      bias    : in std_logic_vector(2*data_size-1 downto 0);                              -- bias (single term, signed integer) 
+      weights : in data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);  -- weights volume (signed integer)
+      outputs : out std_logic_vector(data_size-1 downto 0));                              -- output (signed integer)
   end component;
 
   ------------------------------------------------------------------------------
@@ -66,7 +66,7 @@ architecture behavioral of tb_approx_neuron is
   signal   clock             : std_logic := '0';
   signal   reset_n           : std_logic := '0';
   signal   inputs            : data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1) := (others => (others => (others => (others => '0'))));
-  signal   bias              : std_logic_vector(data_size-1 downto 0) := (others => '0'); 
+  signal   bias              : std_logic_vector(2*data_size-1 downto 0) := (others => '0'); 
   signal   weights           : data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1) := (others => (others => (others => (others => '0'))));
   signal   outputs           : data_matrix(0 to data_size-2, 0 to data_size-2)  := (others => (others => (others => '0')));
   ------------------------------------------------------------------------------
@@ -98,7 +98,7 @@ begin
   stim_process : process
     variable rline        : line;
     variable space        : character;
-    variable read_bias    : std_logic_vector(data_size-1 downto 0); 
+    variable read_bias    : std_logic_vector(2*data_size-1 downto 0); 
     variable read_weights : data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);
     variable read_inputs  : data_volume(0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);
     variable read_outputs : data_matrix(0 to data_size-2, 0 to data_size-2);
@@ -110,16 +110,15 @@ begin
 		wait for 7*clock_period;
 
     while not endfile(test_oracle) loop
+      report "Processing line " & integer'image(line_number) severity note;
       readline(test_oracle, rline);
       -- reading bias
       read(rline, read_bias); read(rline, space);
-      bias <= read_bias;
       -- reading weights
       for sz in 0 to input_depth-1 loop
         for sy in 0 to ker_height-1 loop
           for sx in 0 to ker_width-1 loop
             read(rline, read_weights(sz, sy, sx)); read(rline, space);
-            weights(sz, sy, sx) <= read_weights(sz, sy, sx);
           end loop;
         end loop;
       end loop;
@@ -128,10 +127,13 @@ begin
         for sy in 0 to ker_height-1 loop
           for sx in 0 to ker_width-1 loop
             read(rline, read_inputs(sz, sy, sx)); read(rline, space);
-            inputs(sz, sy, sx) <= read_inputs(sz, sy, sx);
           end loop;
         end loop;
       end loop;
+      bias <= read_bias;
+      weights <= read_weights;
+      inputs <= read_inputs;
+
       -- waiting the computation to complete
       wait for (latency+1)*clock_period;
       -- reading output

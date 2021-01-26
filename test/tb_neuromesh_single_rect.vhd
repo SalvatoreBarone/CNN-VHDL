@@ -52,7 +52,7 @@ architecture behavioral of tb_neuromesh_single_rect is
       clock   : in  std_logic;                                                                                                -- Clock signal
       reset_n : in  std_logic;                                                                                                -- Reset signal (active low)
       weights : in  data_hypervolume(0 to parallel_weights_rows-1, 0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);  -- weights volume
-      bias    : in  data_vector(0 to parallel_weights_rows-1);                                                                -- biases (one bias for each one of the weight volumes) 
+      bias    : in  bias_vector(0 to parallel_weights_rows-1);                                                                -- biases (one bias for each one of the weight volumes) 
       inputs  : in  data_hypervolume(0 to parallel_inputs_cols-1, 0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);   -- input volume
       outputs : out data_matrix(0 to parallel_weights_rows-1, 0 to parallel_inputs_cols-1));                                  -- output
   end component;
@@ -74,8 +74,9 @@ architecture behavioral of tb_neuromesh_single_rect is
   signal   reset_n               : std_logic := '0';
   signal   inputs                : data_hypervolume(0 to parallel_inputs_cols-1, 0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1) := (others => (others => (others => (others => (others => '0')))));
   signal   weights               : data_hypervolume(0 to parallel_weights_rows-1, 0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1) := (others => (others => (others => (others => (others => '0')))));
-  signal   bias                  : data_vector(0 to parallel_weights_rows-1) := (others => (others => '0')); 
+  signal   bias                  : bias_vector(0 to parallel_weights_rows-1) := (others => (others => '0')); 
   signal   outputs               : data_matrix(0 to parallel_weights_rows-1, 0 to parallel_inputs_cols-1) := (others => (others => (others => '0')));
+  signal   expected_sum          : std_logic_vector(31 downto 0) := (others => '0');
   ------------------------------------------------------------------------------
 
   ------------------------------------------------------------------------------
@@ -101,11 +102,12 @@ begin
   stim_process : process
     variable rline        : line;
     variable space        : character;
-    variable read_bias    : data_vector(0 to parallel_inputs_cols-1); 
+    variable read_bias    : bias_vector(0 to parallel_inputs_cols-1); 
     variable read_weights : data_hypervolume(0 to parallel_weights_rows-1, 0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);
     variable read_inputs  : data_hypervolume(0 to parallel_inputs_cols-1, 0 to input_depth-1, 0 to ker_height-1, 0 to ker_width-1);
     variable read_outputs : data_matrix(0 to parallel_weights_rows-1, 0 to parallel_inputs_cols-1);
     variable line_number  : integer := 0;
+    variable read_expected_sum : std_logic_vector(31 downto 0) := (others => '0');
   begin
     file_open(test_oracle, "../test/tb_neuromesh_single_rect_oracle.txt", read_mode);
 		reset_n <= '0', '1' after 5*clock_period;
@@ -135,6 +137,8 @@ begin
       end loop;
       inputs <= read_inputs;
       -- reading output
+      read(rline, read_expected_sum); read(rline, space);
+      expected_sum <= read_expected_sum;
       read(rline, read_outputs(0,0));
       
       -- waiting the computation to complete
