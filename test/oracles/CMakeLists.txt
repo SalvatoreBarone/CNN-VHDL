@@ -41,7 +41,7 @@ add_custom_target(
     COMMAND ./tb_neuromesh_2i1w_linear > ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_2i1w_linear_oracle.txt
     COMMAND ./tb_neuromesh_1i2w_rect > ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_1i2w_rect_oracle.txt
     COMMAND ./tb_neuromesh_2i1w_rect > ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_2i1w_rect_oracle.txt
-    COMMAND ./tb_neuromesh_lenet5_fc2 > ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_oracle.txt
+    COMMAND ./tb_neuromesh_lenet5_fc2 > ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_fc2_oracle.txt
     COMMAND ./tb_approx_adder > ${ORACLES_DESTINATION_DIRECTORY}/tb_approx_adder_oracle.txt 
     COMMAND ./tb_approx_multiplier > ${ORACLES_DESTINATION_DIRECTORY}/tb_approx_multiplier_oracle.txt 
     COMMAND ./tb_approx_weighted_sum > ${ORACLES_DESTINATION_DIRECTORY}/tb_approx_weighted_sum_oracle.txt
