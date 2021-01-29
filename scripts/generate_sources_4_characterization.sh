@@ -48,19 +48,19 @@ destination=$(realpath $destination)
 
 
 mkdir -p $destination
-cp -t $destination  ../src/utils.vhd \
-                    ../src/mem/generic_register.vhd \
-                    ../src/mem/pipe_delay.vhd \
-                    ../src/math/full_adder.vhd \
-                    ../src/math/piped_adder.vhd \
-                    ../src/math/sum_reduct.vhd \
-                    ../src/math/wired_shift.vhd \
-                    ../src/math/adder.vhd \
-                    ../src/math/multiplier.vhd \
-                    ../src/nn/cells/data_types.vhd \
-                    ../src/nn/cells/activation.vhd \
-                    ../src/nn/cells/weighted_sum.vhd \
-                    ../src/nn/cells/neuron.vhd \
+cp -t $destination  ../HW/src/utils.vhd \
+                    ../HW/src/mem/generic_register.vhd \
+                    ../HW/src/mem/pipe_delay.vhd \
+                    ../HW/src/math/full_adder.vhd \
+                    ../HW/src/math/piped_adder.vhd \
+                    ../HW/src/math/sum_reduct.vhd \
+                    ../HW/src/math/wired_shift.vhd \
+                    ../HW/src/math/adder.vhd \
+                    ../HW/src/math/multiplier.vhd \
+                    ../HW/src/nn/cells/data_types.vhd \
+                    ../HW/src/nn/cells/activation.vhd \
+                    ../HW/src/nn/cells/weighted_sum.vhd \
+                    ../HW/src/nn/cells/neuron.vhd \
                     ../Vivado/create_project.tcl \
                     ../Vivado/run_sim.tcl \
                     ../Vivado/constraints.xdc \

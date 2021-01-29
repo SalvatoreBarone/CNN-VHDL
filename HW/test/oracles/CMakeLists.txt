@@ -18,15 +18,12 @@ add_executable(tb_neuromesh_1i2w_linear             tb_neuromesh_1i2w_linear.cc)
 add_executable(tb_neuromesh_2i1w_linear             tb_neuromesh_2i1w_linear.cc)
 add_executable(tb_neuromesh_1i2w_rect                 tb_neuromesh_1i2w_rect.cc)
 add_executable(tb_neuromesh_2i1w_rect                 tb_neuromesh_2i1w_rect.cc)
-add_executable(tb_neuromesh_lenet5_fc2               tb_neuromesh_lenet5_fc2.cc)
-add_executable(tb_neuromesh_lenet5_conv1      tb_neuromesh_lenet5_conv1/conv1.cc
-                                              tb_neuromesh_lenet5_conv1/main.cc)
-target_include_directories(tb_neuromesh_lenet5_conv1    
-                                              PRIVATE tb_neuromesh_lenet5_conv1)
-add_executable(tb_neuromesh_lenet5_conv2      tb_neuromesh_lenet5_conv2/conv2.cc
-                                              tb_neuromesh_lenet5_conv2/main.cc)
-target_include_directories(tb_neuromesh_lenet5_conv2    
-                                              PRIVATE tb_neuromesh_lenet5_conv2)
+
+add_executable(tb_neuromesh_lenet5_conv1      tb_neuromesh_lenet5_conv1/conv1.cc tb_neuromesh_lenet5_conv1/main.cc)
+target_include_directories(tb_neuromesh_lenet5_conv1  PRIVATE tb_neuromesh_lenet5_conv1 ../../../SW/)
+add_executable(tb_neuromesh_lenet5_conv2      tb_neuromesh_lenet5_conv2/conv2.cc tb_neuromesh_lenet5_conv2/main.cc)
+target_include_directories(tb_neuromesh_lenet5_conv2 PRIVATE tb_neuromesh_lenet5_conv2 ../../../SW/)
+add_executable(tb_neuromesh_lenet5_fc2        tb_neuromesh_lenet5_fc2/tb_neuromesh_lenet5_fc2.cc)
 
 add_executable(tb_approx_adder                      trunc.cc tb_approx_adder.cc)
 add_executable(tb_approx_multiplier            trunc.cc tb_approx_multiplier.cc)

@@ -10,4 +10,4 @@ neuron_synth/
 *.pdf
 Synthesis/
 build2/
-test/tb_*.txt
+HW/test/tb_*.txt
