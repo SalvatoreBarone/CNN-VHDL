@@ -23,7 +23,12 @@ add_executable(tb_neuromesh_lenet5_conv1      tb_neuromesh_lenet5_conv1/conv1.cc
 target_include_directories(tb_neuromesh_lenet5_conv1  PRIVATE tb_neuromesh_lenet5_conv1 ../../../SW/)
 add_executable(tb_neuromesh_lenet5_conv2      tb_neuromesh_lenet5_conv2/conv2.cc tb_neuromesh_lenet5_conv2/main.cc)
 target_include_directories(tb_neuromesh_lenet5_conv2 PRIVATE tb_neuromesh_lenet5_conv2 ../../../SW/)
-add_executable(tb_neuromesh_lenet5_fc2        tb_neuromesh_lenet5_fc2/tb_neuromesh_lenet5_fc2.cc)
+add_executable(tb_neuromesh_lenet5_conv3      tb_neuromesh_lenet5_conv3/conv3.cc tb_neuromesh_lenet5_conv3/main.cc)
+target_include_directories(tb_neuromesh_lenet5_conv3 PRIVATE tb_neuromesh_lenet5_conv3 ../../../SW/)
+add_executable(tb_neuromesh_lenet5_fc1        tb_neuromesh_lenet5_fc1/fc1.cc tb_neuromesh_lenet5_fc1/main.cc)
+target_include_directories(tb_neuromesh_lenet5_fc1 PRIVATE tb_neuromesh_lenet5_fc1 ../../../SW/)
+add_executable(tb_neuromesh_lenet5_fc2        tb_neuromesh_lenet5_fc2/fc2.cc tb_neuromesh_lenet5_fc2/main.cc)
+target_include_directories(tb_neuromesh_lenet5_fc2 PRIVATE tb_neuromesh_lenet5_fc2 ../../../SW/)
 
 add_executable(tb_approx_adder                      trunc.cc tb_approx_adder.cc)
 add_executable(tb_approx_multiplier            trunc.cc tb_approx_multiplier.cc)
@@ -46,14 +51,17 @@ add_custom_target(
     COMMAND ./tb_neuromesh_2i1w_linear > ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_2i1w_linear_oracle.txt
     COMMAND ./tb_neuromesh_1i2w_rect > ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_1i2w_rect_oracle.txt
     COMMAND ./tb_neuromesh_2i1w_rect > ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_2i1w_rect_oracle.txt
-    COMMAND ./tb_neuromesh_lenet5_fc2 > ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_fc2_oracle.txt
     COMMAND ./tb_neuromesh_lenet5_conv1 -i ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_conv1_inputs.txt -o ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_conv1_outputs.txt -w ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_conv1_weights.txt -b ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_conv1_biases.txt
     COMMAND ./tb_neuromesh_lenet5_conv2 -i ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_conv2_inputs.txt -o ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_conv2_outputs.txt -w ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_conv2_weights.txt -b ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_conv2_biases.txt
+    COMMAND ./tb_neuromesh_lenet5_conv3 -i ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_conv3_inputs.txt -o ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_conv3_outputs.txt -w ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_conv3_weights.txt -b ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_conv3_biases.txt
+    COMMAND ./tb_neuromesh_lenet5_fc1 -i ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_fc1_inputs.txt -o ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_fc1_outputs.txt -w ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_fc1_weights.txt -b ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_fc1_biases.txt
+    COMMAND ./tb_neuromesh_lenet5_fc2 -i ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_fc2_inputs.txt -o ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_fc2_outputs.txt -w ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_fc2_weights.txt -b ${ORACLES_DESTINATION_DIRECTORY}/tb_neuromesh_lenet5_fc2_biases.txt
     COMMAND ./tb_approx_adder > ${ORACLES_DESTINATION_DIRECTORY}/tb_approx_adder_oracle.txt 
     COMMAND ./tb_approx_multiplier > ${ORACLES_DESTINATION_DIRECTORY}/tb_approx_multiplier_oracle.txt 
     COMMAND ./tb_approx_weighted_sum > ${ORACLES_DESTINATION_DIRECTORY}/tb_approx_weighted_sum_oracle.txt
     COMMAND ./tb_approx_neuron > ${ORACLES_DESTINATION_DIRECTORY}/tb_approx_neuron_oracle.txt 
-    DEPENDS tb_activation tb_approx_adder tb_approx_multiplier tb_approx_neuron tb_approx_weighted_sum tb_neuron tb_weighted_sum tb_wired_shift tb_neuromesh_single_rect tb_neuromesh_single_linear tb_neuromesh_1i2w_linear tb_neuromesh_2i1w_linear tb_neuromesh_1i2w_rect tb_neuromesh_2i1w_rect tb_neuromesh_lenet5_fc2 tb_neuromesh_lenet5_conv1 tb_neuromesh_lenet5_conv2
+    DEPENDS tb_activation tb_approx_adder tb_approx_multiplier tb_approx_neuron tb_approx_weighted_sum tb_neuron tb_weighted_sum tb_wired_shift tb_neuromesh_single_rect tb_neuromesh_single_linear tb_neuromesh_1i2w_linear tb_neuromesh_2i1w_linear tb_neuromesh_1i2w_rect tb_neuromesh_2i1w_rect tb_neuromesh_lenet5_conv1 tb_neuromesh_lenet5_conv2 tb_neuromesh_lenet5_conv3 tb_neuromesh_lenet5_fc1 tb_neuromesh_lenet5_fc2 
+
 
     VERBATIM
 )

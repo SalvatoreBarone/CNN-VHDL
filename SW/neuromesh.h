@@ -34,21 +34,31 @@ class neuromesh_t {
       for (int output = 0; output < output_depth; output++) {
         print_binary(stream, 16*sizeof(data_t), bias[output]);
         stream << " ";
-        if (output % parallel_weights_rows == 0) stream << std::endl;
+        if ((output+1) % parallel_weights_rows == 0) stream << std::endl;
       }
     }
   
     void print_debug_weights_file(std::ostream& stream, const data_t (*weights[output_depth][input_depth])[conv_kern_height][conv_kern_width]) {
       for (unsigned int output = 0; output < output_depth; output++) {
         for (unsigned int channel = 0; channel < input_depth; channel++) {
-          if (conv1_weights[output][channel] == NULL) continue;
+          if (weights[output][channel] == NULL) continue;
           for (unsigned int sy = 0; sy < conv_kern_height; sy++)
             for (unsigned int sx = 0; sx < conv_kern_width; sx++) {
               print_binary(stream, 8*sizeof(data_t), (*weights[output][channel])[sy][sx]); 
               stream << " ";
             }
         }
-        if (output % parallel_weights_rows == 0) stream << std::endl;
+        if ((output+1) % parallel_weights_rows == 0) stream << std::endl;
+      }
+    }
+
+    void print_debug_weights_file(std::ostream& stream, const data_t (&weights)[output_depth][input_depth]) {
+      for (unsigned int output = 0; output < output_depth; output++) {
+        for (unsigned int channel = 0; channel < input_depth; channel++) {
+          print_binary(stream, 8*sizeof(data_t), weights[output][channel]); 
+          stream << " ";
+        }
+        if ((output+1) % parallel_weights_rows == 0) stream << std::endl;
       }
     }
 
@@ -68,8 +78,16 @@ class neuromesh_t {
                 stream << " ";
               }
           }
-          if ((ox + oy*output_width) % parallel_inputs_cols == 0) stream << std::endl;
+          if ((1+ox + oy*output_width) % parallel_inputs_cols == 0) stream << std::endl;
         }
+    }
+
+    void print_debug_inputs_file(std::ostream& stream, const data_t (&inputs)[input_depth]){
+      for (unsigned int channel = 0; channel < input_depth; ++channel) {
+        print_binary(stream, 8*sizeof(data_t), inputs[channel]);
+        stream << " ";
+      }
+      stream << std::endl;
     }
     
     void print_debug_outputs_file(std::ostream& stream, const data_t (&outputs)[output_depth][output_height][output_width]){
@@ -78,8 +96,16 @@ class neuromesh_t {
          for (int sz = 0; sz < output_depth; sz++) {
            print_binary(stream, 8*sizeof(data_t), outputs[sz][sy][sx]);
            stream << " ";
-           if ((sz+sx*output_depth+sy*output_depth*output_width) % (parallel_weights_rows*parallel_weights_rows) == 0) stream << std::endl;
+           if ((1+sz+sx*output_depth+sy*output_depth*output_width) % (parallel_weights_rows*parallel_inputs_cols) == 0) stream << std::endl;
          }
+    }
+
+    void print_debug_outputs_file(std::ostream& stream, const data_t (&outputs)[output_depth]){
+       for (int sz = 0; sz < output_depth; sz++) {
+         print_binary(stream, 8*sizeof(data_t), outputs[sz]);
+         stream << " ";
+         if ((1+sz) % parallel_weights_rows == 0) stream << std::endl;
+       }
     }
 
   private :
@@ -88,6 +114,8 @@ class neuromesh_t {
       for (int i = desired_bitwidth-1; i >= 0; i--)
         stream << ((data & (1<<i)) ? '1' : '0');
     }
+    int int_max(int a, int b) {return (a > b) ? a : b;}
+    int int_min(int a, int b) {return (a < b) ? a : b;}
 };
 
 #endif

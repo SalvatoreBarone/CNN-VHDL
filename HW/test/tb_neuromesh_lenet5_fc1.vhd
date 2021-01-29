@@ -27,10 +27,10 @@ use work.data_types.all;
 use work.utils.all;
 use work.activation_functions.all;
 
-entity tb_neuromesh_lenet5_conv1 is
-end tb_neuromesh_lenet5_conv1;
+entity tb_neuromesh_lenet5_fc1 is
+end tb_neuromesh_lenet5_fc1;
 
-architecture behavioral of tb_neuromesh_lenet5_conv1 is
+architecture behavioral of tb_neuromesh_lenet5_fc1 is
   component neuromesh is
     generic (
       -- Structural properties of the mesh
@@ -59,14 +59,14 @@ architecture behavioral of tb_neuromesh_lenet5_conv1 is
   ------------------------------------------------------------------------------
   -- Generics
   constant parallel_weights_rows    : natural      := 6;
-  constant parallel_inputs_cols     : natural      := 2;
+  constant parallel_inputs_cols     : natural      := 1;
   constant unsigned_inputs          : boolean      := true;
-  constant input_depth              : natural      := 1;
-  constant ker_width                : natural      := 5;
-  constant ker_height               : natural      := 5;
+  constant input_depth              : natural      := 120;
+  constant ker_width                : natural      := 1;
+  constant ker_height               : natural      := 1;
   constant act_kind                 : activation_t := rectifier;
   constant act_unsigned             : boolean      := true;
-  constant shift                    : integer      := 2;
+  constant shift                    : integer      := 0;
   constant add_approx_degree        : natural      := 0;
   constant mul_approx_degree        : natural      := 0;
   -- Port
@@ -115,9 +115,9 @@ begin
     reset_n <= '1';
     ----------------------------------------------------------------------------
     -- Reading biases
-    file_open(test_weights, "../test/tb_neuromesh_lenet5_conv1_weights.txt", read_mode);
-    file_open(test_biases, "../test/tb_neuromesh_lenet5_conv1_biases.txt", read_mode);
-    file_open(test_outputs, "../test/tb_neuromesh_lenet5_conv1_outputs.txt", read_mode);
+    file_open(test_weights, "../test/tb_neuromesh_lenet5_fc1_weights.txt", read_mode);
+    file_open(test_biases, "../test/tb_neuromesh_lenet5_fc1_biases.txt", read_mode);
+    file_open(test_outputs, "../test/tb_neuromesh_lenet5_fc1_outputs.txt", read_mode);
     while not endfile(test_biases) and not endfile(test_weights) loop
       report "Reading biases ..." severity note;
       readline(test_biases, rline);
@@ -137,7 +137,7 @@ begin
         end loop;
       end loop;
       weights <= read_weights;
-      file_open(test_inputs, "../test/tb_neuromesh_lenet5_conv1_inputs.txt", read_mode);
+      file_open(test_inputs, "../test/tb_neuromesh_lenet5_fc1_inputs.txt", read_mode);
       while not endfile(test_inputs) loop
         report "Processing input line " & integer'image(line_number) severity note;
         readline(test_inputs, rline);

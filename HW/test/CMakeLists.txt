@@ -63,11 +63,18 @@ add_dependencies(tb_neuromesh_1i2w_rect neuromesh)
 add_testbench_source(tb_neuromesh_2i1w_rect.vhd tb_neuromesh_2i1w_rect)
 add_dependencies(tb_neuromesh_2i1w_rect neuromesh)
 
-add_testbench_source(tb_neuromesh_lenet5_fc2.vhd tb_neuromesh_lenet5_fc2)
-add_dependencies(tb_neuromesh_lenet5_fc2 neuromesh)
-
 add_testbench_source(tb_neuromesh_lenet5_conv1.vhd tb_neuromesh_lenet5_conv1)
 add_dependencies(tb_neuromesh_lenet5_conv1 neuromesh)
 
 add_testbench_source(tb_neuromesh_lenet5_conv2.vhd tb_neuromesh_lenet5_conv2)
 add_dependencies(tb_neuromesh_lenet5_conv2 neuromesh)
+
+add_testbench_source(tb_neuromesh_lenet5_conv3.vhd tb_neuromesh_lenet5_conv3)
+add_dependencies(tb_neuromesh_lenet5_conv3 neuromesh)
+
+add_testbench_source(tb_neuromesh_lenet5_fc1.vhd tb_neuromesh_lenet5_fc1)
+add_dependencies(tb_neuromesh_lenet5_fc1 neuromesh)
+
+add_testbench_source(tb_neuromesh_lenet5_fc2.vhd tb_neuromesh_lenet5_fc2)
+add_dependencies(tb_neuromesh_lenet5_fc2 neuromesh)
+

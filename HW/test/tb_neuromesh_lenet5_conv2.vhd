@@ -110,69 +110,61 @@ begin
     variable read_outputs : data_matrix(0 to parallel_weights_rows-1, 0 to parallel_inputs_cols-1);
     variable line_number  : integer := 0;
   begin
+		reset_n <= '0';
+    wait for clock_period;
+    reset_n <= '1';
     ----------------------------------------------------------------------------
     -- Reading biases
-    report "Reading biases ..." severity note;
-    file_open(test_biases, "../test/tb_neuromesh_lenet5_conv2_biases.txt", read_mode);
-    for w in 0 to parallel_weights_rows-1 loop
-      readline(test_biases, rline);
-      read(rline, read_bias(w));
-    end loop; 
-    file_close(test_biases); 
-    bias <= read_bias;
-
-    ----------------------------------------------------------------------------
-    -- Reading weights
-    report "Reading weights ..." severity note;
     file_open(test_weights, "../test/tb_neuromesh_lenet5_conv2_weights.txt", read_mode);
-    for w in 0 to parallel_weights_rows-1 loop
-      readline(test_weights, rline);
-      for sz in 0 to input_depth-1 loop
-        for sy in 0 to ker_height-1 loop
-          for sx in 0 to ker_width-1 loop
-            read(rline, read_weights(w, sz, sy, sx)); read(rline, space);
-          end loop;
-        end loop;
-      end loop;
-    end loop;
-    file_close(test_weights);
-    weights <= read_weights;
-
-
-    ----------------------------------------------------------------------------
-    -- Test loop
-    file_open(test_inputs, "../test/tb_neuromesh_lenet5_conv2_inputs.txt", read_mode);
+    file_open(test_biases, "../test/tb_neuromesh_lenet5_conv2_biases.txt", read_mode);
     file_open(test_outputs, "../test/tb_neuromesh_lenet5_conv2_outputs.txt", read_mode);
-    report "Beginning test loop..." severity note;
-		reset_n <= '0', '1' after 5*clock_period;
-		wait for 7*clock_period;
-    while not endfile(test_inputs) and not endfile(test_outputs) loop
-      report "Processing input line " & integer'image(line_number) severity note;
-      -- reading inputs 
-      for i in 0 to parallel_inputs_cols-1 loop
-        readline(test_inputs, rline);
+    while not endfile(test_biases) and not endfile(test_weights) loop
+      report "Reading biases ..." severity note;
+      readline(test_biases, rline);
+      for w in 0 to parallel_weights_rows-1 loop
+        read(rline, read_bias(w)); read(rline, space);
+      end loop; 
+      bias <= read_bias;
+      report "Reading weights ..." severity note;
+      readline(test_weights, rline);
+      for w in 0 to parallel_weights_rows-1 loop
         for sz in 0 to input_depth-1 loop
           for sy in 0 to ker_height-1 loop
             for sx in 0 to ker_width-1 loop
-              read(rline, read_inputs(i, sz, sy, sx)); read(rline, space);
+              read(rline, read_weights(w, sz, sy, sx)); read(rline, space);
             end loop;
           end loop;
         end loop;
       end loop;
-      inputs <= read_inputs;
-      -- waiting the computation to complete
-      wait for latency * clock_period;
-      -- reading/comparing outputs
-      for i in 0 to parallel_inputs_cols-1 loop
-        readline(test_outputs, rline);
-        for w in 0 to parallel_weights_rows-1 loop
-          read(rline, read_outputs(w,i)); read(rline, space);
-          assert read_outputs(w,i) = outputs(w,i) report "Error with input line " & integer'image(line_number) severity failure; 
+      weights <= read_weights;
+      file_open(test_inputs, "../test/tb_neuromesh_lenet5_conv2_inputs.txt", read_mode);
+      while not endfile(test_inputs) loop
+        report "Processing input line " & integer'image(line_number) severity note;
+        readline(test_inputs, rline);
+        for i in 0 to parallel_inputs_cols-1 loop
+          for sz in 0 to input_depth-1 loop
+            for sy in 0 to ker_height-1 loop
+              for sx in 0 to ker_width-1 loop
+                read(rline, read_inputs(i, sz, sy, sx)); read(rline, space);
+              end loop;
+            end loop;
+          end loop;
         end loop;
+        inputs <= read_inputs;
+        wait for latency * clock_period;
+        readline(test_outputs, rline);
+        for i in 0 to parallel_inputs_cols-1 loop
+          for w in 0 to parallel_weights_rows-1 loop
+            read(rline, read_outputs(w,i)); read(rline, space);
+            assert read_outputs(w,i) = outputs(w,i) report "Error with input line " & integer'image(line_number) severity failure; 
+          end loop;
+        end loop;
+        line_number := line_number + 1;
       end loop;
-      line_number := line_number + 1;
+      file_close(test_inputs);
     end loop;
-    file_close(test_inputs);
+    file_close(test_weights);
+    file_close(test_biases); 
     file_close(test_outputs);
 		simulate <= '0';
 		wait;

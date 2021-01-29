@@ -82,7 +82,10 @@ architecture behavioral of tb_neuromesh_lenet5_fc2 is
   -- Testbench stuff
 	constant clock_period   : time          := 10 ns;
   constant latency        : natural       := log2(input_depth*ker_height*ker_width)+7;
-  file     test_oracle    : text;
+  file     test_biases    : text;
+  file     test_weights   : text;
+  file     test_inputs    : text;
+  file     test_outputs   : text;
 	signal   simulate       : std_logic     := '1';
 begin
   uut : neuromesh
@@ -107,16 +110,24 @@ begin
     variable read_outputs : data_matrix(0 to parallel_weights_rows-1, 0 to parallel_inputs_cols-1);
     variable line_number  : integer := 0;
   begin
-    file_open(test_oracle, "../test/tb_neuromesh_lenet5_fc2_oracle.txt", read_mode);
-		reset_n <= '0', '1' after 5*clock_period;
-		wait for 7*clock_period;
-    while not endfile(test_oracle) loop
-      report "Processing line " & integer'image(line_number) severity note;
-      readline(test_oracle, rline);
+		reset_n <= '0';
+    wait for clock_period;
+    reset_n <= '1';
+    ----------------------------------------------------------------------------
+    -- Reading biases
+    file_open(test_weights, "../test/tb_neuromesh_lenet5_fc2_weights.txt", read_mode);
+    file_open(test_biases, "../test/tb_neuromesh_lenet5_fc2_biases.txt", read_mode);
+    file_open(test_outputs, "../test/tb_neuromesh_lenet5_fc2_outputs.txt", read_mode);
+    while not endfile(test_biases) and not endfile(test_weights) loop
+      report "Reading biases ..." severity note;
+      readline(test_biases, rline);
       for w in 0 to parallel_weights_rows-1 loop
-        -- reading bias
         read(rline, read_bias(w)); read(rline, space);
-        -- reading weights
+      end loop; 
+      bias <= read_bias;
+      report "Reading weights ..." severity note;
+      readline(test_weights, rline);
+      for w in 0 to parallel_weights_rows-1 loop
         for sz in 0 to input_depth-1 loop
           for sy in 0 to ker_height-1 loop
             for sx in 0 to ker_width-1 loop
@@ -125,34 +136,36 @@ begin
           end loop;
         end loop;
       end loop;
-      -- reading inputs 
-      for i in 0 to parallel_inputs_cols-1 loop
-        for sz in 0 to input_depth-1 loop
-          for sy in 0 to ker_height-1 loop
-            for sx in 0 to ker_width-1 loop
-              read(rline, read_inputs(i, sz, sy, sx)); read(rline, space);
+      weights <= read_weights;
+      file_open(test_inputs, "../test/tb_neuromesh_lenet5_fc2_inputs.txt", read_mode);
+      while not endfile(test_inputs) loop
+        report "Processing input line " & integer'image(line_number) severity note;
+        readline(test_inputs, rline);
+        for i in 0 to parallel_inputs_cols-1 loop
+          for sz in 0 to input_depth-1 loop
+            for sy in 0 to ker_height-1 loop
+              for sx in 0 to ker_width-1 loop
+                read(rline, read_inputs(i, sz, sy, sx)); read(rline, space);
+              end loop;
             end loop;
           end loop;
         end loop;
-      end loop;
-      bias <= read_bias;
-      weights <= read_weights;
-      inputs <= read_inputs;
-      -- reading output
-      -- waiting the computation to complete
-      wait for latency * clock_period;
-      for w in 0 to parallel_weights_rows-1 loop
+        inputs <= read_inputs;
+        wait for latency * clock_period;
+        readline(test_outputs, rline);
         for i in 0 to parallel_inputs_cols-1 loop
-          read(rline, read_outputs(w,i));
+          for w in 0 to parallel_weights_rows-1 loop
+            read(rline, read_outputs(w,i)); read(rline, space);
+            assert read_outputs(w,i) = outputs(w,i) report "Error with input line " & integer'image(line_number) severity failure; 
+          end loop;
         end loop;
+        line_number := line_number + 1;
       end loop;
-      for w in 0 to parallel_weights_rows-1 loop
-        for i in 0 to parallel_inputs_cols-1 loop
-          assert read_outputs(w,i) = outputs(w,i) report "Error with input line " & integer'image(line_number) severity failure; 
-        end loop;
-      end loop;
-      line_number := line_number + 1;
+      file_close(test_inputs);
     end loop;
+    file_close(test_weights);
+    file_close(test_biases); 
+    file_close(test_outputs);
 		simulate <= '0';
 		wait;
   end process;
