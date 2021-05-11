@@ -1,6 +1,6 @@
-set _xil_proj_name_ "neuron_synth"
+set _xil_proj_name_ "evoneuron"
 set origin_dir "[file normalize "."]"
-set orig_proj_dir "[file normalize "$origin_dir/neuron_synth"]"
+set orig_proj_dir "[file normalize "$origin_dir/evo_neuron"]"
 
 # Create project
 open_project ./${_xil_proj_name_}/${_xil_proj_name_}.xpr

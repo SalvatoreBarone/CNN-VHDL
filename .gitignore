@@ -11,3 +11,5 @@ neuron_synth/
 Synthesis/
 build2/
 HW/test/tb_*.txt
+
+HW/Testing/

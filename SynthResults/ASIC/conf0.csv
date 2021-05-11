@@ -1,0 +1,6 @@
+Conf;Sequential instances;Sequential area(um²);Inverter instances;Inverter area (um²);Logic instances;Logic area (um²);Total area (um²);Leakage Power (nW);Dynamic Power (nW);Total Power (nW)
+16_bit_1_5_5_approx_0;2843;29567,200;1076;1678,560;11940;66063,400;97326,840;891298,607;7175372,604;8066671,211
+16_bit_6_5_5_approx_0;;;;;;;;;;
+16_bit_16_5_5_approx_0;;;;;;;;;;
+16_bit_120_1_1_approx_0;;;;;;;;;;
+16_bit_1_84_1_approx_0;10425;108420,000;3613;5636,280;41177;232145,680;346219,640;3180349,183;24414527,618;27594876,801

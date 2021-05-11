@@ -12,3 +12,5 @@ add_dependencies(multiplier utils piped_adder generic_register)
 
 add_vhdl_source(sum_reduct.vhd sum_reduct)
 add_dependencies(sum_reduct utils piped_adder)
+
+add_subdirectory(EvoApproxLite)

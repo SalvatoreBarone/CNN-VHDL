@@ -45,9 +45,8 @@ fi
 root_dir=$(pwd)
 xilinx_vivado=$(realpath $xilinx_vivado)
 destination=$(realpath $destination)
-
-
 mkdir -p $destination
+
 cp -t $destination  ../HW/src/utils.vhd \
                     ../HW/src/mem/generic_register.vhd \
                     ../HW/src/mem/pipe_delay.vhd \

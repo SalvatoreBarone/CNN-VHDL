@@ -27,11 +27,17 @@ add_dependencies(tb_activation activation debug_func)
 add_testbench_source(tb_weighted_sum.vhd tb_weighted_sum)
 add_dependencies(tb_weighted_sum weighted_sum utils debug_func)
 
+add_testbench_source(tb_evo_weighted_sum.vhd tb_evo_weighted_sum)
+add_dependencies(tb_evo_weighted_sum evo_weighted_sum utils debug_func)
+
 add_testbench_source(tb_approx_weighted_sum.vhd tb_approx_weighted_sum)
 add_dependencies(tb_approx_weighted_sum weighted_sum utils debug_func)
 
 add_testbench_source(tb_neuron.vhd tb_neuron)
-add_dependencies(tb_neuron utils neuron)
+add_dependencies(tb_neuron utils neuron debug_func)
+
+add_testbench_source(tb_evo_neuron.vhd tb_evo_neuron)
+add_dependencies(tb_evo_neuron utils evo_neuron debug_func)
 
 #add_testbench_source(tb_neuron_pipelining.vhd tb_neuron_pipelining)
 #add_dependencies(tb_neuron_pipelining utils neuron)
@@ -43,38 +49,38 @@ add_dependencies(tb_neuron utils neuron)
 #add_dependencies(tb_neuron_4dpa debug_func utils multiplier generic_register pipe_delay sum_reduct activation)
 
 add_testbench_source(tb_approx_neuron.vhd tb_approx_neuron)
-add_dependencies(tb_approx_neuron utils neuron)
+add_dependencies(tb_approx_neuron utils neuron debug_func)
 
 add_testbench_source(tb_neuromesh_single_rect.vhd tb_neuromesh_single_rect)
-add_dependencies(tb_neuromesh_single_rect neuromesh)
+add_dependencies(tb_neuromesh_single_rect neuromesh debug_func)
 
 add_testbench_source(tb_neuromesh_single_linear.vhd tb_neuromesh_single_linear)
-add_dependencies(tb_neuromesh_single_linear neuromesh)
+add_dependencies(tb_neuromesh_single_linear neuromesh debug_func)
 
 add_testbench_source(tb_neuromesh_1i2w_linear.vhd tb_neuromesh_1i2w_linear)
-add_dependencies(tb_neuromesh_1i2w_linear neuromesh)
+add_dependencies(tb_neuromesh_1i2w_linear neuromesh debug_func)
 
 add_testbench_source(tb_neuromesh_2i1w_linear.vhd tb_neuromesh_2i1w_linear)
-add_dependencies(tb_neuromesh_2i1w_linear neuromesh)
+add_dependencies(tb_neuromesh_2i1w_linear neuromesh debug_func)
 
 add_testbench_source(tb_neuromesh_1i2w_rect.vhd tb_neuromesh_1i2w_rect)
-add_dependencies(tb_neuromesh_1i2w_rect neuromesh)
+add_dependencies(tb_neuromesh_1i2w_rect neuromesh debug_func)
 
 add_testbench_source(tb_neuromesh_2i1w_rect.vhd tb_neuromesh_2i1w_rect)
-add_dependencies(tb_neuromesh_2i1w_rect neuromesh)
+add_dependencies(tb_neuromesh_2i1w_rect neuromesh debug_func)
 
 add_testbench_source(tb_neuromesh_lenet5_conv1.vhd tb_neuromesh_lenet5_conv1)
-add_dependencies(tb_neuromesh_lenet5_conv1 neuromesh)
+add_dependencies(tb_neuromesh_lenet5_conv1 neuromesh debug_func)
 
 add_testbench_source(tb_neuromesh_lenet5_conv2.vhd tb_neuromesh_lenet5_conv2)
-add_dependencies(tb_neuromesh_lenet5_conv2 neuromesh)
+add_dependencies(tb_neuromesh_lenet5_conv2 neuromesh debug_func)
 
 add_testbench_source(tb_neuromesh_lenet5_conv3.vhd tb_neuromesh_lenet5_conv3)
-add_dependencies(tb_neuromesh_lenet5_conv3 neuromesh)
+add_dependencies(tb_neuromesh_lenet5_conv3 neuromesh debug_func)
 
 add_testbench_source(tb_neuromesh_lenet5_fc1.vhd tb_neuromesh_lenet5_fc1)
-add_dependencies(tb_neuromesh_lenet5_fc1 neuromesh)
+add_dependencies(tb_neuromesh_lenet5_fc1 neuromesh debug_func)
 
 add_testbench_source(tb_neuromesh_lenet5_fc2.vhd tb_neuromesh_lenet5_fc2)
-add_dependencies(tb_neuromesh_lenet5_fc2 neuromesh)
+add_dependencies(tb_neuromesh_lenet5_fc2 neuromesh debug_func)
 

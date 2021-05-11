@@ -110,9 +110,10 @@ begin
   w_i_loop_z : for sz in 0 to input_depth-1 generate
     w_i_loop_y: for sy in 0 to ker_height-1 generate
       w_i_loop_x : for sx in 0 to ker_width-1 generate
-        ext_weights((ker_width*ker_height*sz)+(ker_width*sy)+sx) <= weights(sz, sy, sx)(data_size-1) & weights(sz, sy, sx);
+--        ext_weights((ker_width*ker_height*sz)+(ker_width*sy)+sx) <= weights(sz, sy, sx)(data_size-1) & weights(sz, sy, sx);
+        ext_weights((ker_width*ker_height*sz)+(ker_width*sy)+sx) <= weights(sz, sy, sx);
         uns : if unsigned_inputs = true generate
-          uns_inputs((ker_width*ker_height*sz)+(ker_width*sy)+sx) <= '0' & inputs(sz, sy, sx);
+          uns_inputs((ker_width*ker_height*sz)+(ker_width*sy)+sx) <= inputs(sz, sy, sx);
         end generate;
         sig : if unsigned_inputs = false generate
           uns_inputs((ker_width*ker_height*sz)+(ker_width*sy)+sx) <= inputs(sz, sy, sx)(data_size-1) & inputs(sz, sy, sx);
@@ -127,10 +128,10 @@ begin
   -- Bias sign extension
   ext_bias(bias'range) <= bias_buff;
   with bias_buff(bias_buff'left) select
-    ext_bias(ext_bias'left downto bias_buff'left+1) <= (others => '1') when '1', (others => '0') when others;
+    ext_bias(ext_bias'left downto bias_buff'left) <= (others => '1') when '1', (others => '0') when others;
   -- Partial product computation
   pprod_loop : for i in 0 to num_terms-1 generate
-        mul_w_i : evo_mul16s port map (clock, reset_n, ext_weights(i), uns_inputs(i), pprod_unbuf(i));
+        mul_w_i : evo_mul16s generic map (axcomponent) port map (clock, reset_n, ext_weights(i), uns_inputs(i), pprod_unbuf(i));
         buf_pprodd : generic_register generic map(pprod_size) port map(clock, reset_n, pprod_unbuf(i), '1', pprod(i));
   end generate;
   -- Terms concatenation
