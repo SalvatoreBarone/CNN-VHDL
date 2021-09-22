@@ -54,9 +54,9 @@ cp -t $destination  ../HW/src/utils.vhd \
                     ../HW/src/nn/cells/activation.vhd \
                     ../HW/src/nn/cells/evo_weighted_sum.vhd \
                     ../HW/src/nn/cells/evo_neuron.vhd \
-                    ../Vivado/create_evo_project.tcl \
-                    ../Vivado/run_evo_sim.tcl \
-                    ../Vivado/constraints.xdc \
+#                    ../Vivado/create_evo_project.tcl \
+#                    ../Vivado/run_evo_sim.tcl \
+#                    ../Vivado/constraints.xdc \
 #                    ../Vivado/tb_evo_neuron_4dpa.vhd \
 
 echo "Configuring ${destination}"
